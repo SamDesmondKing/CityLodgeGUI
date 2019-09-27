@@ -1,5 +1,4 @@
-package main;
-import util.DateTime;
+package model;
 
 public class HiringRecord {
 

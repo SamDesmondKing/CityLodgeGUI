@@ -1,6 +1,5 @@
-package main;
+package model;
 import java.util.ArrayList;
-import util.DateTime;
 
 public abstract class Room {
 

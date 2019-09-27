@@ -1,6 +1,5 @@
-package main;
+package model;
 import java.io.*;
-import util.DateTime;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -347,65 +346,5 @@ public class CityLodge {
 
 	}
 
-	public void mainMenu() {
-
-		boolean quit = false;
-		String menuString;
-		int menuInput = 0;
-		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-
-		do {
-			try {
-				System.out.println(
-						"**** CITYLODGE MAIN MENU ****\n\nAdd Room:			1\nRent Room:			2\nReturn Room:			3\nRoom Maintenance:		4\nComplete Maintenance:		5\nDisplay All Rooms:		6\nExit Program:			7\nEnter your choice:");
-				menuString = stdin.readLine();
-				menuInput = Integer.parseInt(menuString);
-
-				// Add room - DONE
-				if (menuInput == 1) {
-
-					String input = this.checkRoomOrSuite();
-
-					if (input == "Room") {
-						this.addRoom();
-					} else if (input == "Suite") {
-						this.addSuite();
-					}
-
-					// Rent room - DONE
-				} else if (menuInput == 2) {
-
-					this.callRentRoom();
-
-					// Return room - DONE
-				} else if (menuInput == 3) {
-
-					this.callReturnRoom();
-
-					// Begin maintenance - DONE
-				} else if (menuInput == 4) {
-
-					this.callPerformMaintenance();
-
-					// End maintenance - DONE
-				} else if (menuInput == 5) {
-
-					this.callCompleteMaintenance();
-
-					// Display rooms - DONE
-				} else if (menuInput == 6) {
-					this.displayRooms();
-
-					// Quit.
-				} else if (menuInput == 7) {
-					quit = true;
-				}
-
-			} catch (NumberFormatException nfe) {
-				System.out.println("Error: Invalid Input. Please enter a number between 1-7");
-			} catch (Exception e) {
-				System.out.println("Error: Returning to Main Menu.");
-			}
-		} while (!quit);
-	}
+	
 }
