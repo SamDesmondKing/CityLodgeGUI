@@ -1,6 +1,7 @@
 package view;
 
 import controller.Controller;
+import controller.CustomHandler;
 import javafx.animation.PathTransition;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -18,7 +19,10 @@ import model.CityLodge;
 public class CityLodgeMain extends Application{
 	
 	
+	@Override
 	public void start(Stage primaryStage) {
+		
+		/*
 		Pane menu = new VBox();
 		menu.getChildren().add(new Button("Rent Room"));
 		menu.getChildren().add(new Button("Return Room"));
@@ -32,10 +36,17 @@ public class CityLodgeMain extends Application{
 		primaryStage.setTitle("CityLodge");
 		primaryStage.setScene(scene);
 		primaryStage.show();
+		*/
+		
+		Button btOK = new Button("Click me");
+		Scene scene = new Scene(btOK, 200, 250);
+		btOK.setOnAction(new CustomHandler(primaryStage, scene));
+		primaryStage.setTitle("MyJavaFX"); // Set the stage title
+		primaryStage.setScene(scene); // Place the scene in the stage
+		primaryStage.show(); // Display the stage
 	}
 	
 	public static void main (String[] args) {
-		
 		
 		Application.launch(args);
 		

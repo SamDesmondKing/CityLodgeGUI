@@ -1,5 +1,4 @@
 package model;
-import java.io.*;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -14,9 +13,10 @@ public class CityLodge {
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Please select room type:\nStandard Room:			1\nSuite:				2");
 		int input = sc.nextInt();
-
+		sc.close();
+		
 		if (input == 1) {
-			return "Room";
+			return "Room";			
 		} else if (input == 2) {
 			return "Suite";
 		} else {
@@ -24,6 +24,7 @@ public class CityLodge {
 			return "";
 		}
 	}
+	
 
 	// Takes and validates input to create StandardRoom, adds to roomArray
 	public void addRoom() {
@@ -44,6 +45,7 @@ public class CityLodge {
 		// RoomID format check
 		if (roomID.charAt(0) != 'R' || roomID.charAt(1) != '_') {
 			System.out.println("Invalid room ID, room not created. Returning to main menu.");
+			sc.close();
 			return;
 		}
 
@@ -51,6 +53,7 @@ public class CityLodge {
 		if (!this.checkRoomID(roomID)) {
 			System.out.println(
 					"Error - a room with that RoomID already exists. Room not created, returning to main menu.");
+			sc.close();
 			return;
 		}
 
@@ -62,6 +65,7 @@ public class CityLodge {
 		// numBeds validity check
 		if (numBeds != 1 && numBeds != 2 && numBeds != 4) {
 			System.out.println("Error: Invalid bed selection, returning to main menu.");
+			sc.close();
 			return;
 		}
 
@@ -72,6 +76,7 @@ public class CityLodge {
 		// Feature summary validation (20 words or less)
 		if (!this.checkFeatureSummary(featureSummary)) {
 			System.out.println("Error: feature summary must be 20 words or less. Returning to main menu.");
+			sc.close();
 			return;
 		}
 
@@ -80,6 +85,9 @@ public class CityLodge {
 
 		// Adding new StandardRoom to roomArray.
 		this.addToArray(thisRoom);
+		
+		//Closing scanner
+		sc.close();
 	}
 
 	// Takes and validates input to create Suite, adds to roomArray
@@ -101,6 +109,7 @@ public class CityLodge {
 		// RoomID validity check
 		if (roomID.charAt(0) != 'S' || roomID.charAt(1) != '_') {
 			System.out.println("Invalid room ID, room not created. Returning to main menu.");
+			sc.close();
 			return;
 		}
 
@@ -108,6 +117,7 @@ public class CityLodge {
 		if (!this.checkRoomID(roomID)) {
 			System.out.println(
 					"Error - a room with that RoomID already exists. Room not created, returning to main menu.");
+			sc.close();
 			return;
 		}
 
@@ -118,6 +128,7 @@ public class CityLodge {
 		// Feature summary validation (20 words or less)
 		if (!this.checkFeatureSummary(featureSummary)) {
 			System.out.println("Error: feature summary must be 20 words or less. Returning to main menu.");
+			sc.close();
 			return;
 		}
 
@@ -131,6 +142,7 @@ public class CityLodge {
 		if (DateTime.diffDays(today, lastMaintenanceDate) <= 0) {
 
 			System.out.println("Error: last maintenance date cannot be in the future. Room not created.");
+			sc.close();
 			return;
 		}
 
@@ -139,6 +151,8 @@ public class CityLodge {
 
 		// Adding new Suite to roomArray.
 		this.addToArray(thisRoom);
+		
+		sc.close();
 	}
 
 	// Adds Room to roomArray. Deletes oldest Room if full (50 Rooms)
@@ -202,12 +216,14 @@ public class CityLodge {
 
 		if (searchTarget == null) {
 			System.out.println("Error: Room not found. Returning to main menu.");
+			sc.close();
 			return;
 		}
 
 		// Checking room availability
 		if (!searchTarget.getRoomStatus().equals("Available")) {
 			System.out.println("Error: Room not available. Returning to main menu.");
+			sc.close();
 			return;
 		}
 
@@ -223,9 +239,9 @@ public class CityLodge {
 		// Taking numOfRentDays
 		System.out.println("How many days?: ");
 		int numOfRentDays = sc.nextInt();
-
+		sc.close();
+		
 		if (searchTarget.rent(customerID, rentDate, numOfRentDays)) {
-
 			System.out.println("Room " + searchTarget.getRoomID() + " is now rented by customer " + customerID);
 		} else {
 			System.out.println("Returning to main menu.");
@@ -246,6 +262,7 @@ public class CityLodge {
 		// Validating roomID
 		if (thisRoom == null) {
 			System.out.println("Error: Room does not exist. Returning to main menu.");
+			sc.close();
 			return;
 		}
 
@@ -256,6 +273,7 @@ public class CityLodge {
 
 		// Calling returnRoom(), where final validation and updating will take place.
 		thisRoom.returnRoom(returnDate);
+		sc.close();
 
 	}
 
@@ -270,15 +288,16 @@ public class CityLodge {
 
 		if (thisRoom == null) {
 			System.out.println("Error: Room not found. Returning to main menu.");
+			sc.close();
 			return;
 		}
 
 		if (thisRoom.performMaintenance()) {
-
 			System.out.println(thisRoom.getRoomType() + " " + thisRoom.getRoomID() + " is now under maintenance");
+			sc.close();
 		} else {
-			
 			System.out.println("Returning to main menu.");
+			sc.close();
 		}
 	}
 
@@ -294,6 +313,7 @@ public class CityLodge {
 
 		if (thisRoom == null) {
 			System.out.println("Error: Room not found. Returning to main menu.");
+			sc.close();
 			return;
 		}
 
@@ -302,9 +322,9 @@ public class CityLodge {
 		DateTime completionDate = this.stringToDateTime(dateString);
 
 		if (thisRoom.completeMaintenance(completionDate)) {
-
 			System.out.println(thisRoom.getRoomType() + " " + thisRoom.getRoomID()
 					+ " has all maintenance operations completed and is now ready for rent.");
+			sc.close();
 		}
 	}
 
