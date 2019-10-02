@@ -14,13 +14,13 @@ public class CityLodgeDB {
 
 	private Connection con;
 	
-	public CityLodgeDB(String db_file) throws Exception {
+	public CityLodgeDB() throws Exception {
 
 		final String DB_NAME = "CityLodgeDB";
 
 		// Connect database		
 		Class.forName("org.hsqldb.jdbc.JDBCDriver");
-		this.con = DriverManager.getConnection("jdbc:hsqldb:file:" + db_file, "SA", "");
+		this.con = DriverManager.getConnection("jdbc:hsqldb:file:database/" + DB_NAME, "SA", "");
 		
 	}
 	
