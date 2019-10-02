@@ -9,9 +9,6 @@ import model.exceptions.DatabaseException;
 
 public class CityLodgeDB {
 	
-	//TODO: Add query method
-	//TODO: Add update method
-
 	private Connection con;
 	
 	public CityLodgeDB() throws Exception {

@@ -1,12 +1,16 @@
 package model;
 import java.util.Random;
 import java.util.Scanner;
+
+import controller.Controller;
+
 import java.util.ArrayList;
 
 public class CityLodge {
 
 	private ArrayList<Room> roomArray = new ArrayList<Room>();
-
+	private Controller controller;
+	
 	// Sub-menu to check if the user would like to enter a Standard Room or a Suite.
 	public String checkRoomOrSuite() {
 
@@ -366,5 +370,8 @@ public class CityLodge {
 
 	}
 
+	public void setController(Controller controller) {
+		this.controller = controller;
+	}
 	
 }

@@ -29,9 +29,29 @@ public class CityLodgeMain extends Application{
 	@Override
 	public void start(Stage primaryStage) {
 		
-		// Initialise Controller
-		// Controller then sets up database and CityLodge model. 
-		this.controller = new Controller();
+		// Initialise and connect Database, if sucessful initialise rest of program. 
+		try {
+			CityLodgeDB database = new CityLodgeDB();
+			// Change to javaFX alert
+			JOptionPane.showMessageDialog(null, "Connection to database successful");
+			
+			// On database sucess
+			CityLodge citylodge = new CityLodge();
+			this.controller = new Controller(citylodge, database);
+			citylodge.setController(this.controller);
+
+		} catch (Exception e) {
+			// Change to javaFX alert
+			JOptionPane.showMessageDialog(null, "Connection to database failed. Program aborting.");
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+
+		
+		//Add all database tables here once, then never do it again. 
+		
+		//Manipulate the database through the methods in the Controller class. 
 		
 		
 		/* Scene switching example
