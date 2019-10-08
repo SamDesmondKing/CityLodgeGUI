@@ -16,7 +16,7 @@ public class CityLodgeDB {
 		final String DB_NAME = "CityLodgeDB";
 
 		// Connect database		
-		//Class.forName("org.hsqldb.jdbc.JDBCDriver");
+		Class.forName("org.hsqldb.jdbc.JDBCDriver");
 		this.con = DriverManager.getConnection("jdbc:hsqldb:file:database/" + DB_NAME, "SA", "");
 		
 	}

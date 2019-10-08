@@ -13,6 +13,8 @@ public class CityLodge {
 	private ArrayList<Room> roomArray = new ArrayList<Room>();
 	private Controller controller;
 
+	//TODO GUI-ify these methods
+	//TODO Custom exception-ify these methods (do last). 
 	
 	// Sub-menu to check if the user would like to enter a Standard Room or a Suite.
 	public String checkRoomOrSuite() {

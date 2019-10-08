@@ -12,9 +12,7 @@ import model.database.CityLodgeDB;
 import view.AlertMessage;
 
 //TODO addRoomDB()
-//TODO removeRoomDB()
-//TODO writeDatabaseToCityLodge()
-//TODO handleClickEvents() etc. 
+//TODO saveRooms()
 
 public class Controller {
 
@@ -44,7 +42,7 @@ public class Controller {
 
 	public void handleClickEvents(int menuInput) {
 
-			// Add room
+		// Add room
 		if (menuInput == 1) {
 
 			ButtonType buttonOne = new ButtonType("Room");
@@ -55,36 +53,41 @@ public class Controller {
 
 			if (result.get() == buttonOne) {
 				this.citylodge.addRoom();
+				//addRoomDB() TODO
 				
 			} else if (result.get() == buttonTwo) {
 				this.citylodge.addSuite();
+				//addRoomDB() TODO
 			}
 
-			// Rent room
+		// Rent room
 		} else if (menuInput == 2) {
-
 			this.citylodge.callRentRoom();
+			//saveRooms() TODO
 
-			// Return room
+		// Return room
 		} else if (menuInput == 3) {
-
 			this.citylodge.callReturnRoom();
+			//saveRooms() TODO
 
-			// Begin maintenance
+		// Begin maintenance
 		} else if (menuInput == 4) {
-
 			this.citylodge.callPerformMaintenance();
-
-			// End maintenance
+			//saveRooms() TODO
+			
+		// End maintenance
 		} else if (menuInput == 5) {
-
 			this.citylodge.callCompleteMaintenance();
-
-			// Display rooms
+			//saveRooms() TODO
+			
+		// Export data TODO
 		} else if (menuInput == 6) {
 			this.citylodge.displayRooms();
 
-		}
-
+		// Import data TODO
+		} else if (menuInput == 7) {
+			this.citylodge.displayRooms();
+		
+		} 
 	}
 }
