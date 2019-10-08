@@ -27,6 +27,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import model.CityLodge;
 import model.database.CityLodgeDB;
@@ -66,6 +67,7 @@ public class CityLodgeMain extends Application {
 		Scene scene = new Scene(pane);
 		primaryStage.setTitle("CityLodge");
 		primaryStage.setScene(scene);
+		primaryStage.initStyle(StageStyle.UTILITY);
 		primaryStage.show();
 
 		/*
@@ -156,12 +158,11 @@ public class CityLodgeMain extends Application {
 		
 		try {
 			CityLodgeDB database = new CityLodgeDB();
+			
 			// On database sucess
-			Alert success = new Alert(AlertType.INFORMATION);
-			success.setTitle("Database Status");
-			success.setHeaderText("Database Status");
-			success.setContentText("Connection to Database Successful!");
+			AlertMessage success = new AlertMessage(AlertType.INFORMATION, "Database Status", "Connection to Database Successful!");
 			success.showAndWait();
+			
 			// Initialising program
 			CityLodge citylodge = new CityLodge();
 			this.controller = new Controller(citylodge, database);

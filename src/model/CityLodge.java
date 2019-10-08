@@ -3,10 +3,13 @@ import java.util.Random;
 import java.util.Scanner;
 
 import controller.Controller;
+import javafx.scene.control.TextInputDialog;
+import view.CustomDialog;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class CityLodge {
 
@@ -16,89 +19,6 @@ public class CityLodge {
 	//TODO GUI-ify these methods
 	//TODO Custom exception-ify these methods (do last). 
 	
-	// Sub-menu to check if the user would like to enter a Standard Room or a Suite.
-	public String checkRoomOrSuite() {
-
-		Scanner sc = new Scanner(System.in);
-		System.out.println("Please select room type:\nStandard Room:			1\nSuite:				2");
-		int input = sc.nextInt();
-		sc.close();
-		
-		if (input == 1) {
-			return "Room";			
-		} else if (input == 2) {
-			return "Suite";
-		} else {
-			System.out.println("Error: invalid selection. Returning to main menu.");
-			return "";
-		}
-	}
-	
-
-	// Takes and validates input to create StandardRoom, adds to roomArray
-	public void addRoom() {
-
-		Scanner sc = new Scanner(System.in);
-
-		// Taking RoomID
-		System.out.println("Enter room ID, beginning with 'R_'. Leave empty to generate random ID.");
-		String roomID = sc.nextLine().trim().toUpperCase();
-		
-		//If empty, generate random ID
-		if (roomID.isEmpty()) {
-			Random random = new Random();
-			int roomNo = random.nextInt(99999);
-			roomID = "R_" + roomNo;
-		}
-		
-		// RoomID format check
-		if (roomID.charAt(0) != 'R' || roomID.charAt(1) != '_') {
-			System.out.println("Invalid room ID, room not created. Returning to main menu.");
-			sc.close();
-			return;
-		}
-
-		// RoomID uniqueness check
-		if (!this.checkRoomID(roomID)) {
-			System.out.println(
-					"Error - a room with that RoomID already exists. Room not created, returning to main menu.");
-			sc.close();
-			return;
-		}
-
-		// Taking numBeds
-		System.out.println("Enter the number of beds: 1, 2 or 4");
-		int numBeds = sc.nextInt();
-		sc.nextLine();
-
-		// numBeds validity check
-		if (numBeds != 1 && numBeds != 2 && numBeds != 4) {
-			System.out.println("Error: Invalid bed selection, returning to main menu.");
-			sc.close();
-			return;
-		}
-
-		// Taking feature summary
-		System.out.println("Enter the feature summary:");
-		String featureSummary = sc.nextLine().trim();
-
-		// Feature summary validation (20 words or less)
-		if (!this.checkFeatureSummary(featureSummary)) {
-			System.out.println("Error: feature summary must be 20 words or less. Returning to main menu.");
-			sc.close();
-			return;
-		}
-
-		// If we made it to here the room is good to go.
-		StandardRoom thisRoom = new StandardRoom(roomID, numBeds, featureSummary);
-
-		// Adding new StandardRoom to roomArray.
-		this.addToArray(thisRoom);
-		
-		//Closing scanner
-		sc.close();
-	}
-
 	// Takes and validates input to create Suite, adds to roomArray
 	public void addSuite() {
 
