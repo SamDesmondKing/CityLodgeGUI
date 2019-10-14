@@ -1,6 +1,10 @@
 package model;
 import java.util.ArrayList;
 
+import model.exceptions.MaintenanceException;
+import model.exceptions.RentalException;
+import model.exceptions.ReturnException;
+
 public abstract class Room {
 
 	// Fixed
@@ -41,60 +45,47 @@ public abstract class Room {
 	}
 
 	//Abstract methods
-	abstract public boolean rent(String customerID, DateTime rentDate, int numOfRentDays);
+	abstract public void rent(String customerID, DateTime rentDate, int numOfRentDays) throws RentalException;
 	abstract public String toString();
 	abstract public String getDetails();
 
-	//Checks conditions and sets roomStatus to 'Maintenance'.
+	//Checks conditions and sets roomStatus to 'Maintenance'.TODO Exception
 	public boolean performMaintenance() {
 
 		if (this.getRoomStatus().equalsIgnoreCase("Available")) {
-
 			this.setRoomStatus("Maintenance");
 			return true;
 		} else {
-
-			System.out.println("Error: Room status is currently set to " + this.getRoomStatus());
 			return false;
 		}
-
 	}
 
-	//Checks conditions and sets roomStatus to 'Available'.
-	public boolean completeMaintenance(DateTime completionDate) {
+	//Checks conditions and sets roomStatus to 'Available'.TODO Exception
+	public void completeMaintenance(DateTime completionDate) throws MaintenanceException {
 
 		DateTime today = new DateTime();
 
 		//If room is under maintenance and completionDate is not in the future
 		if (this.getRoomStatus().equalsIgnoreCase("Maintenance") && DateTime.diffDays(today, completionDate) >= 1) {
-
 			this.setRoomStatus("Available");
-			return true;
 		} else {
-
-			System.out.println("Error: Room status is currently set to " + this.getRoomStatus());
-			return false;
+			throw new MaintenanceException("Error: Room Currently Under Maintenance or Completion Date is in the Future","Returning to main menu.");
 		}
-
 	}
 
 	// Returns room/suite, updates hiring record of that Room will all relevant
-	// fees.
-	public boolean returnRoom(DateTime returnDate) {
+	// fees. 
+	public void returnRoom(DateTime returnDate) throws ReturnException {
 
 		// If room is not currently rented out, you can't return it.
 		if (!this.roomStatus.equalsIgnoreCase("Rented")) {
-
-			System.out.println("Error: Room is not currently rented and therefore cannot be returned.");
-			return false;
+			throw new ReturnException("Error: Room is not currently rented and therefore cannot be returned.","Returning to main menu.");
 		}
 
 		// If returnDate is before rentDate, or in the past, you can't return it.
 		DateTime today = new DateTime();
 		if ((DateTime.diffDays(this.getCurrentHiringRecord().getRentDate(), returnDate) >= 1) || DateTime.diffDays(today, returnDate) >= 1) {
-
-			System.out.println("Error: Return Date invalid. Room not returned.");
-			return false;
+			throw new ReturnException("Error: Return Date invalid. Room not returned.","Returning to main menu.");
 		}
 
 		// If we made it to here, calculate and set all fees in the hiring record.
@@ -102,11 +93,6 @@ public abstract class Room {
 
 		// Officially 'un-rent' room.
 		this.setRoomStatus("Available");
-		
-		System.out.println(this.getRoomType() + " " + this.getRoomID() + " has been returned successfully.\n" + this.getCurrentHiringRecord().getDetails());
-
-		return true;
-
 	}
 
 	// Add hiring records to the HiringRecord array of this room object.
@@ -144,39 +130,31 @@ public abstract class Room {
 
 	}
 
-	// Gets rentalRate
 	public double getRentalRate() {
 		return this.rentalRate;
 	}
 
-	// Gets roomID
 	public String getRoomID() {
 		return this.roomID;
 	}
 
-	// Gets numBeds
 	public int getNumBeds() {
 		return this.numBeds;
 	}
 
-	// Gets roomType
 	public String getRoomType() {
 		return this.roomType;
 	}
 
-	// Gets roomStatus
 	public String getRoomStatus() {
 		return this.roomStatus;
 	}
 
-	// Gets featureSummary
 	public String getFeatureSummary() {
 		return this.featureSummary;
 	}
 
-	// Sets room status
 	public void setRoomStatus(String status) {
-
 		this.roomStatus = status;
 	}
 

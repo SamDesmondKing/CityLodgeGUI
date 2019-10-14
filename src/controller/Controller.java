@@ -6,6 +6,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Scanner;
 
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
@@ -15,6 +16,10 @@ import model.Room;
 import model.StandardRoom;
 import model.Suite;
 import model.database.CityLodgeDB;
+import model.exceptions.InvalidInputException;
+import model.exceptions.MaintenanceException;
+import model.exceptions.RentalException;
+import model.exceptions.ReturnException;
 import view.AlertMessage;
 import view.CustomChoiceDialog;
 import view.CustomInputDialog;
@@ -48,44 +53,51 @@ public class Controller {
 		}
 	}
 
-	public void handleClickEvents(int menuInput) {
+	// TODO Handle Exceptions here
+	public void mainMenu(int menuInput) {
 
 		// Add room
 		if (menuInput == 1) {
-
-			ButtonType buttonOne = new ButtonType("Room");
-			ButtonType buttonTwo = new ButtonType("Suite");
-			AlertMessage roomOrSuite = new AlertMessage(AlertType.CONFIRMATION, "Please choose room or suite",
-					buttonOne, buttonTwo);
-			Optional<ButtonType> result = roomOrSuite.showAndWait();
-
-			if (result.get() == buttonOne) {
-				this.addRoom();
+			int result = this.getRoomOrSuite();
+			if (result == 1) {
+				try {
+					this.addRoom();
+				} catch (InvalidInputException e) {
+					e.getError();
+				}
 				// addRoomDB() TODO
-
-			} else if (result.get() == buttonTwo) {
-				this.addSuite(); 
+			} else if (result == 2) {
+				try {
+					this.addSuite();
+				} catch (InvalidInputException e) {
+					e.getError();
+				}
 				// addRoomDB() TODO
 			}
-
-			// Rent room 
+			// Rent room
 		} else if (menuInput == 2) {
-			this.callRentRoom();
+			try {
+				this.callRentRoom();
+			} catch (InvalidInputException e) {
+				e.getError(); // - *********************TEST
+			} catch (RentalException e) {
+				e.getError();
+			}
 			// saveRooms() TODO
 
-			// Return room TODO
+			// Return room
 		} else if (menuInput == 3) {
-			this.citylodge.callReturnRoom();
+			// this.callReturnRoom();
 			// saveRooms() TODO
 
-			// Begin maintenance TODO
+			// Begin maintenance
 		} else if (menuInput == 4) {
-			this.citylodge.callPerformMaintenance();
+			// this.callPerformMaintenance();
 			// saveRooms() TODO
 
-			// End maintenance TODO
+			// End maintenance
 		} else if (menuInput == 5) {
-			this.citylodge.callCompleteMaintenance();
+			// this.callCompleteMaintenance();
 			// saveRooms() TODO
 
 			// Export data TODO
@@ -99,48 +111,90 @@ public class Controller {
 		}
 	}
 
+	// UPDATED - Searches for Room by ID, calls performMaintenance() on Room
+	public void callPerformMaintenance() throws InvalidInputException, MaintenanceException {
+
+		// Taking room ID
+		String roomID = this.takeID();
+
+		// Throws InvalidInputException
+		Room thisRoom = citylodge.searchRoomByID(roomID);
+
+		// Throws MaintenanceException
+		thisRoom.performMaintenance();
+
+		AlertMessage success = new AlertMessage(AlertType.INFORMATION,
+				thisRoom.getRoomType() + " " + thisRoom.getRoomID() + " is now under maintenance.",
+				"Returning to main menu.");
+		success.showAndWait();
+	}
+
+	// UPDATED - Searches for Room by ID, takes completion date and calls
+	// completeMaintenance() on Room
+	public void callCompleteMaintenance() throws InvalidInputException, MaintenanceException {
+
+		// Taking room ID
+		String roomID = this.takeID();
+
+		// Searchs for room by ID, throws InvalidInputException
+		Room thisRoom = citylodge.searchRoomByID(roomID);
+
+		// Throws InvalidInputException
+		DateTime completionDate = this.takeDate("Completion");
+
+		// Throws MaintenanceException
+		thisRoom.completeMaintenance(completionDate);
+
+		AlertMessage success = new AlertMessage(AlertType.INFORMATION,
+				thisRoom.getRoomType() + " " + thisRoom.getRoomID()
+						+ " has had all maintenance operations completed and is now ready for rent.",
+				"Returning to main menu.");
+		success.showAndWait();
+	}
+
+	// UPDATED - calls return room on room or suite object
+	public void callReturnRoom() throws InvalidInputException, ReturnException {
+
+		// Taking roomID
+		String roomID = this.takeID();
+
+		// Getting room from citylodge array
+		Room thisRoom = citylodge.searchRoomByID(roomID);
+
+		// Validating roomID
+		if (thisRoom == null) {
+			throw new InvalidInputException("Error: Room Does Not Exist", "Returning to main menu.");
+		}
+
+		// Taking returnDate
+		DateTime returnDate = this.takeDate("Return");
+
+		// Calling returnRoom(), where final validation and updating will take place.
+		thisRoom.returnRoom(returnDate);
+
+		AlertMessage success = new AlertMessage(AlertType.INFORMATION,
+				thisRoom.getRoomType() + " " + thisRoom.getRoomID() + " has been returned successfully.\n",
+				"Returning to main menu.");
+		success.showAndWait();
+	}
+
 	// UPDATED - Takes and validates input to create Suite, adds to roomArray
-	public void addSuite() {
+	public void addSuite() throws InvalidInputException {
 
 		// Taking suiteID
-		String suiteID = this.takeID("Suite");
-		if (suiteID == null) {
-			return;
-		}
+		String suiteID = this.takeNewID("Suite");
+
 		// Taking feature summary
 		String featureSummary = this.takeFeatureSummary();
-		if (featureSummary == null) {
-			return;
-		}
-		// Taking last maintenance date
-		DateTime maintDate = null;
-		CustomInputDialog maintDateDialog = new CustomInputDialog("Enter Last Maintenance Date", "Format dd/mm/yyyy: ");
-		Optional<String> maintDateResult = maintDateDialog.showAndWait();
 
-		if (maintDateResult.isPresent()) {
-			try {
-				maintDate = this.stringToDateTime(maintDateResult.get());
-			} catch (Exception e) {
-				AlertMessage failure = new AlertMessage(AlertType.WARNING, "Error: Wrong Date Format",
-						"Returning to main menu.");
-				failure.showAndWait();
-				return;
-			}
-		} else {
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Error: Maintenance Date Not Entered",
-					"Returning to main menu.");
-			failure.showAndWait();
-			return;
-		}
+		// Taking last maintenance date
+		DateTime maintDate = this.takeDate("Last Maintenance");
 
 		// Validating last maintenance date
 		DateTime today = new DateTime();
 		if (DateTime.diffDays(today, maintDate) <= 0) {
-
-			AlertMessage failure = new AlertMessage(AlertType.WARNING,
-					"Error: Maintenance Date Cannot Be in the Future", "Returning to main menu.");
-			failure.showAndWait();
-			return;
+			throw new InvalidInputException("Error: Maintenance Date Cannot Be in the Future",
+					"Returning to main menu.");
 		}
 
 		// If we made it to here Suite is good to go.
@@ -150,13 +204,10 @@ public class Controller {
 	}
 
 	// UPDATED - Verifies and adds room to citylodge room array
-	public void addRoom() {
+	public void addRoom() throws InvalidInputException {
 
-		// Taking RoomID
-		String roomID = this.takeID("Standard Room");
-		if (roomID == null) {
-			return;
-		}
+		// Taking RoomID - throws InvalidInputException
+		String roomID = this.takeNewID("Standard Room");
 
 		// Taking numBeds
 		int numBeds = 0;
@@ -169,26 +220,18 @@ public class Controller {
 				"Selection: ");
 		Optional<String> bedResult = numBedsDialog.showAndWait();
 
-		if (bedResult.isPresent()) {
-			if (bedResult.get() == "One") {
-				numBeds = 1;
-			} else if (bedResult.get() == "Two") {
-				numBeds = 2;
-			} else if (bedResult.get() == "Four") {
-				numBeds = 4;
-			}
+		if (bedResult.get() == "One") {
+			numBeds = 1;
+		} else if (bedResult.get() == "Two") {
+			numBeds = 2;
+		} else if (bedResult.get() == "Four") {
+			numBeds = 4;
 		} else {
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Room Creation Cancelled",
-					"Returning to main menu.");
-			failure.showAndWait();
-			return;
+			throw new InvalidInputException("Room Creation Cancelled", "Room not created, returning to main menu.");
 		}
 
-		// Taking feature summary
+		// Taking feature summary - throws InvalidInputException
 		String featureSummary = this.takeFeatureSummary();
-		if (featureSummary == null) {
-			return;
-		}
 
 		// If we made it to here the room is good to go.
 		try {
@@ -199,16 +242,13 @@ public class Controller {
 			success.showAndWait();
 			return;
 		} catch (Exception e) {
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Room Adding Failed",
-					"Room not created, returning to main menu.");
-			failure.showAndWait();
-			return;
+			throw new InvalidInputException("Error: Adding Room Failed", "Room not created, returning to main menu.");
 		}
 	}
 
 	// UPDATED - Takes RoomID as search target, validates and calls rent() on chosen
 	// Room.
-	public void callRentRoom() {
+	public void callRentRoom() throws InvalidInputException, RentalException {
 
 		CustomInputDialog rentDialog = new CustomInputDialog(
 				"Enter ID of Room to Rent\n\nStandard rooms have the format R_000\nSuites have the format S_000",
@@ -219,28 +259,19 @@ public class Controller {
 		if (roomResult.isPresent()) {
 			roomID = roomResult.get();
 		} else {
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Rental process cancelled",
-					"Returning to main menu.");
-			failure.showAndWait();
-			return;
+			throw new InvalidInputException("Error: ID Not Entered.", "Room not created, returning to main menu.");
 		}
 
 		// Checking room exists
 		Room searchTarget = citylodge.searchRoomByID(roomID);
 
 		if (searchTarget == null) {
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Error: Room Not Found",
-					"Returning to main menu.");
-			failure.showAndWait();
-			return;
+			throw new InvalidInputException("Error: Room Not Found", "Room not created, returning to main menu.");
 		}
 
 		// Checking room availability
 		if (!searchTarget.getRoomStatus().equals("Available")) {
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Error: Room Unavailable",
-					"Returning to main menu.");
-			failure.showAndWait();
-			return;
+			throw new InvalidInputException("Error: Room Not Available", "Room not created, returning to main menu.");
 		}
 
 		// Taking customerID
@@ -251,30 +282,13 @@ public class Controller {
 		if (customerResult.isPresent()) {
 			customerID = "C_" + customerResult.get().trim().toUpperCase();
 		} else {
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Error: Customer Not Entered",
-					"Returning to main menu.");
-			failure.showAndWait();
-			return;
+			throw new InvalidInputException("Error: Customer ID Not Entered.",
+					"Room not created, returning to main menu.");
 		}
 
 		// Taking rent date
-		DateTime rentDate = null;
-		CustomInputDialog rentDateDialog = new CustomInputDialog("Enter Rent Date", "Format dd/mm/yyyy: ");
-		Optional<String> dateResult = rentDateDialog.showAndWait();
-
-		if (dateResult.isPresent()) {
-			try {
-				rentDate = this.stringToDateTime(dateResult.get());
-			} catch (Exception e) {
-				AlertMessage failure = new AlertMessage(AlertType.WARNING, "Error: Wrong Date Format",
-						"Returning to main menu.");
-				failure.showAndWait();
-				return;
-			}
-		} else {
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Error: Rent Date Not Entered",
-					"Returning to main menu.");
-			failure.showAndWait();
+		DateTime rentDate = this.takeDate("Rent");
+		if (rentDate == null) {
 			return;
 		}
 
@@ -283,33 +297,25 @@ public class Controller {
 		CustomInputDialog rentDaysDialog = new CustomInputDialog("Enter Number of Rent Days", "Numeric values only: ");
 		Optional<String> daysResult = rentDaysDialog.showAndWait();
 
-		if (dateResult.isPresent()) {
+		if (daysResult.isPresent()) {
 			try {
 				rentDays = Integer.parseInt(daysResult.get().trim());
 			} catch (Exception e) {
-				AlertMessage failure = new AlertMessage(AlertType.WARNING, "Error: Wrong Day Format",
-						"Returning to main menu.");
-				failure.showAndWait();
-				return;
+				throw new InvalidInputException("Error: Wrong Date Format",
+						"Room not created, returning to main menu.");
 			}
 		} else {
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Error: Rent Days Not Entered",
-					"Returning to main menu.");
-			failure.showAndWait();
-			return;
+			throw new InvalidInputException("Error: Rent Days Not Entered.",
+					"Room not created, returning to main menu.");
 		}
 
-		// Calling rent()
-		if (searchTarget.rent(customerID, rentDate, rentDays)) {
-			String roomMessage = "Room " + searchTarget.getRoomID() + " is now rented by customer " + customerID;
-			AlertMessage success = new AlertMessage(AlertType.INFORMATION, "Room Rented Successfully!", roomMessage);
-			success.showAndWait();
-		} else {
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Error: Room Renting Failed",
-					"Returning to main menu.");
-			failure.showAndWait();
-			return;
-		}
+		// Calling rent() - throws Rental Exception
+		searchTarget.rent(customerID, rentDate, rentDays);
+
+		// If no exception
+		String roomMessage = "Room " + searchTarget.getRoomID() + " is now rented by customer " + customerID;
+		AlertMessage success = new AlertMessage(AlertType.INFORMATION, "Room Rented Successfully!", roomMessage);
+		success.showAndWait();
 	}
 
 	// UPDATED - Checks String is less than 20 words by counting spaces.
@@ -342,7 +348,29 @@ public class Controller {
 
 	}
 
-	public String takeFeatureSummary() {
+	// Takes a date input from user - reduces code repitition
+	public DateTime takeDate(String context) throws InvalidInputException {
+
+		DateTime date = null;
+		CustomInputDialog rentDateDialog = new CustomInputDialog("Enter " + context + " Date", "Format dd/mm/yyyy: ");
+		Optional<String> dateResult = rentDateDialog.showAndWait();
+
+		if (dateResult.isPresent()) {
+			try {
+				date = this.stringToDateTime(dateResult.get());
+			} catch (Exception e) {
+				throw new InvalidInputException("Error: Wrong Date Format",
+						"Room not created, returning to main menu.");
+			}
+		} else {
+			throw new InvalidInputException("Error: Rent Date Not Entered",
+					"Room not created, returning to main menu.");
+		}
+		return date;
+	}
+
+	// Takes feature summary from user
+	public String takeFeatureSummary() throws InvalidInputException {
 
 		CustomInputDialog featDialog = new CustomInputDialog("Enter feature summary (20 words or less)", "");
 		Optional<String> featResult = featDialog.showAndWait();
@@ -351,36 +379,32 @@ public class Controller {
 		if (featResult.isPresent()) {
 			featureSummary = featResult.get();
 		} else {
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Room Creation Cancelled",
-					"Returning to main menu.");
-			failure.showAndWait();
-			return featureSummary;
+			throw new InvalidInputException("Room Creation Cancelled", "Room not created, returning to main menu.");
 		}
 
 		// Feature summary validation (20 words or less)
 		if (!this.checkFeatureSummary(featureSummary)) {
-			featureSummary = null;
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Feature Summary Invalid",
-					"Room not created, returning to main menu.");
-			failure.showAndWait();
+			throw new InvalidInputException("Feature Summary Invalid", "Room not created, returning to main menu.");
 		}
 
 		return featureSummary;
 	}
 
-	public String takeID(String type) {
+	// Takes a new room ID for adding a room
+	public String takeNewID(String type) throws InvalidInputException {
 
 		// Taking RoomID
 		String roomID = null;
 		String typeCode = null;
-		
+
 		if (type == "Standard Room") {
 			typeCode = "R_";
 		} else if (type == "Suite") {
 			typeCode = "S_";
 		}
 
-		CustomInputDialog roomIDDialog = new CustomInputDialog("Enter " + type + " ID" + "\nLeave blank for random ID", typeCode);
+		CustomInputDialog roomIDDialog = new CustomInputDialog("Enter " + type + " ID" + "\nLeave blank for random ID",
+				typeCode);
 		Optional<String> result = roomIDDialog.showAndWait();
 
 		if (result.isPresent()) {
@@ -400,23 +424,53 @@ public class Controller {
 				}
 			}
 		} else {
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Room Creation Cancelled",
-					"Room not created, returning to main menu.");
-			failure.showAndWait();
-			return roomID;
+			throw new InvalidInputException("Room Creation Cancelled", "Room not created, returning to main menu.");
 		}
 
 		// RoomID uniqueness check
 		if (!this.citylodge.checkRoomID(roomID)) {
-			roomID = null;
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Duplicate Room ID",
-					"Room not created, returning to main menu.");
-			failure.showAndWait();
-			return roomID;
+			throw new InvalidInputException("Duplicate Room ID", "Room not created, returning to main menu.");
 		}
-		
-		AlertMessage success = new AlertMessage(AlertType.INFORMATION, "Room ID set to " + roomID,"");
+
+		AlertMessage success = new AlertMessage(AlertType.INFORMATION, "Room ID set to " + roomID, "");
 		success.showAndWait();
 		return roomID;
+	}
+
+	// Takes existing room ID from user
+	public String takeID() throws InvalidInputException {
+
+		// Taking roomID
+		String roomID = null;
+		CustomInputDialog customerIDDialog = new CustomInputDialog(
+				"Enter Room ID\nStandard rooms have the format R_000\nSuites have the format S_000", "");
+		Optional<String> roomResult = customerIDDialog.showAndWait();
+
+		if (roomResult.isPresent()) {
+			roomID = roomResult.get().trim().toUpperCase();
+		} else {
+			throw new InvalidInputException("Room ID Not Entered", "Room not created, returning to main menu.");
+		}
+
+		return roomID;
+	}
+
+	public int getRoomOrSuite() {
+
+		int choice = 0;
+		ButtonType buttonOne = new ButtonType("Room");
+		ButtonType buttonTwo = new ButtonType("Suite");
+		AlertMessage roomOrSuite = new AlertMessage(AlertType.CONFIRMATION, "Please choose room or suite", buttonOne,
+				buttonTwo);
+		Optional<ButtonType> result = roomOrSuite.showAndWait();
+
+		if (result.get() == buttonOne) {
+			choice = 1;
+
+		} else if (result.get() == buttonTwo) {
+			choice = 2;
+		}
+
+		return choice;
 	}
 }

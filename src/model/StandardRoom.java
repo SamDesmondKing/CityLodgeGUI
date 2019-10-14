@@ -1,5 +1,7 @@
 package model;
 
+import model.exceptions.RentalException;
+
 public class StandardRoom extends Room {
 
 	public StandardRoom(String roomID, int numBeds, String featureSummary) {
@@ -9,7 +11,7 @@ public class StandardRoom extends Room {
 	}
 
 	// Checks requirements and rents room
-	public boolean rent(String customerID, DateTime rentDate, int numOfRentDays) {
+	public void rent(String customerID, DateTime rentDate, int numOfRentDays) throws RentalException {
 
 		// Checks that rental period meets requirements
 		if (this.checkRentDays(rentDate, numOfRentDays)) {
@@ -21,12 +23,9 @@ public class StandardRoom extends Room {
 			String recordID = this.getRoomID() + customerID + rentDate.getEightDigitDate();
 			HiringRecord thisRecord = new HiringRecord(recordID, rentDate, estimatedReturnDate, this.getRentalRate());
 			this.addHiringRecord(thisRecord);
-			
-			return true;
 
 		} else {
-			System.out.println("Error: room status not available or rental period invalid.");
-			return false;
+			throw new RentalException("Error: room status not available or rental period invalid.", "Returning to main menu.");
 		}
 	}
 

@@ -37,25 +37,21 @@ public class HiringRecord {
 		
 		//If returned on time
 		if (actualDays <= bookedDays) {
-			
 			this.rentalFee = (this.rentalRate * actualDays);
 			
 		//If late
 		} else {
-			
 			rent = (this.rentalRate * bookedDays);
 			
 			//For Suite
 			if (this.rentalRate == 999) {
-				
 				this.lateFee = (actualDays - bookedDays) * 1099;
 				
 			//For StandardRoom
 			} else {
-				
 				this.lateFee = (actualDays - bookedDays) * (this.rentalRate * 1.35);
 			}
-			
+
 			this.rentalFee = rent + this.lateFee;
 		}
 	}

@@ -1,5 +1,8 @@
 package model;
 
+import model.exceptions.MaintenanceException;
+import model.exceptions.RentalException;
+
 public class Suite extends Room {
 
 	private DateTime lastMaintenanceDate;
@@ -13,7 +16,7 @@ public class Suite extends Room {
 	}
 
 	// Done (Version 2 - untested)
-	public boolean rent(String customerID, DateTime rentDate, int numOfRentDays) {
+	public void rent(String customerID, DateTime rentDate, int numOfRentDays) throws RentalException {
 
 		// Checks that rental period doesn't clash with maintenance schedule
 		if (this.checkMaintenanceSchedule(rentDate, numOfRentDays)) {
@@ -26,12 +29,9 @@ public class Suite extends Room {
 			String recordID = this.getRoomID() + customerID + rentDate.getEightDigitDate();
 			HiringRecord thisRecord = new HiringRecord(recordID, rentDate, estimatedReturnDate, this.getRentalRate());
 			this.addHiringRecord(thisRecord);
-			
-			return true;
-
+		
 		} else {
-			System.out.println("Error: rental period clashes with maintenance schedule.");
-			return false;
+			throw new RentalException("Error: rental period clashes with maintenance schedule.", "Returning to main menu.");
 		}
 	}
 
@@ -60,7 +60,7 @@ public class Suite extends Room {
 	// Overrides Room.completeMaintenance(). Checks conditions and changes Room status from 'Maintenance' to 'Available'.
 	// Updates lastMaintenanceDate. Returns true if successful.
 	@Override
-	public boolean completeMaintenance(DateTime completionDate) {
+	public void completeMaintenance(DateTime completionDate) throws MaintenanceException {
 
 		DateTime today = new DateTime();
 		
@@ -69,13 +69,9 @@ public class Suite extends Room {
 
 			this.setRoomStatus("Available");
 			this.lastMaintenanceDate = completionDate;
-			System.out.println(
-					"Room status set to 'Available', last maintenance date set to " + this.lastMaintenanceDate);
-			return true;
+			
 		} else {
-
-			System.out.println("Error: Room status is currently set to " + this.getRoomStatus());
-			return false;
+			throw new MaintenanceException("Error: Room status is currently set to " + this.getRoomStatus(), "Returning to main menu.");
 		}
 	}
 
@@ -84,10 +80,6 @@ public class Suite extends Room {
 
 		DateTime nextMaintenanceDate = new DateTime(this.lastMaintenanceDate, 10);
 		DateTime returnDate = new DateTime(rentDate, numOfRentDays);
-		
-		System.out.println("ReturnDate: " + returnDate);
-		System.out.println("NextMaintDate: " + nextMaintenanceDate);
-		
 
 		// If there isn't at least one day between returnDate and nextMaintenanceDate
 		if (DateTime.diffDays(nextMaintenanceDate, returnDate) <= -1) {
@@ -105,5 +97,4 @@ public class Suite extends Room {
 	public void setLastMaintenanceDate(DateTime lastMaintenanceDate) {
 		this.lastMaintenanceDate = lastMaintenanceDate;
 	}
-
 }

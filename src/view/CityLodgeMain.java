@@ -51,7 +51,6 @@ public class CityLodgeMain extends Application {
 	//TODO
 	//
 	/*	MONDAY
-	 *  - GUI-ify existing funcionalities
 	 *  - Add custom exceptions to specified methods
 	 *  TUESDAY
 	 *  - Configure Database
@@ -118,31 +117,31 @@ public class CityLodgeMain extends Application {
 
 		// Add room
 		this.btAdd.setOnAction((ActionEvent e) -> {
-			this.controller.handleClickEvents(1);
+			this.controller.mainMenu(1);
 		});
 		// Rent room
 		this.btRent.setOnAction((ActionEvent e) -> {
-			this.controller.handleClickEvents(2);
+			this.controller.mainMenu(2);
 		});
 		// Return room
 		this.btReturn.setOnAction((ActionEvent e) -> {
-			this.controller.handleClickEvents(3);
+			this.controller.mainMenu(3);
 		});
 		// Room maintenance
 		this.btMaint.setOnAction((ActionEvent e) -> {
-			this.controller.handleClickEvents(4);
+			this.controller.mainMenu(4);
 		});
 		// Complete maintenance
 		this.btMaintComplete.setOnAction((ActionEvent e) -> {
-			this.controller.handleClickEvents(5);
+			this.controller.mainMenu(5);
 		});
 		// Export data
 		this.btExport.setOnAction((ActionEvent e) -> {
-			this.controller.handleClickEvents(6);
+			this.controller.mainMenu(6);
 		});
 		// Import Data
 		this.btImport.setOnAction((ActionEvent e) -> {
-			this.controller.handleClickEvents(7);
+			this.controller.mainMenu(7);
 		});
 		// Exit program
 		this.btQuit.setOnAction((ActionEvent e) -> {
