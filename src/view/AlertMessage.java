@@ -18,11 +18,11 @@ import javafx.scene.text.FontPosture;
 public class AlertMessage extends Alert  {
 
 	//Confirmation with two buttons
-	public AlertMessage(AlertType alertType, String title, String context, ButtonType one, ButtonType two) {
+	public AlertMessage(AlertType alertType, String context, ButtonType one, ButtonType two) {
 		super(alertType);
 		
 		
-		this.setTitle(title);
+		this.setTitle("CityLodge");
 		this.setHeaderText(null);
 		this.setContentText(context);
 		ButtonType bCancel = new ButtonType("Cancel");
@@ -36,7 +36,7 @@ public class AlertMessage extends Alert  {
 	public AlertMessage(AlertType alertType, String message, String context) {
 		super(alertType);
 		
-		this.setTitle(message);
+		this.setTitle("CityLodge");
 		this.setHeaderText(message);
 		this.initStyle(StageStyle.UTILITY);
 		this.setContentText(context);

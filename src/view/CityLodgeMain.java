@@ -45,14 +45,47 @@ public class CityLodgeMain extends Application {
 	private Button btExport;
 	private Button btImport;
 	private Button btQuit;
-	
+
 	private GridPane pane;
+	
+	//TODO
+	//
+	/*	MONDAY
+	 *  - GUI-ify existing funcionalities
+	 *  - Add custom exceptions to specified methods
+	 *  TUESDAY
+	 *  - Configure Database
+	 *  - Add Sample rooms to database 
+	 *  - Add ability to export data
+	 *  - Add ability to import data
+	 *  THURSDAY - SATURDAY
+	 *  - Create final GUI design
+	 *  - Test.
+	 */
 
 	@Override
 	public void start(Stage primaryStage) {
 
-		//Connect CityLodgeBD
-		this.connectDatabase();
+		// Connect CityLodgeBD
+		try {
+			CityLodgeDB database = new CityLodgeDB();
+			
+			AlertMessage success = new AlertMessage(AlertType.CONFIRMATION, "Database Status", "Connection to database successful.");
+			success.showAndWait();
+			
+			// Initialise program
+			CityLodge citylodge = new CityLodge();
+			this.controller = new Controller(citylodge, database);
+			citylodge.setController(this.controller);
+
+		} catch (Exception e) {
+
+			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Database Status", "Connection to Database Failed. Program Aborting.");
+			failure.showAndWait();
+			e.printStackTrace();
+			System.exit(1);
+		}
+
 
 		// Create a pane and set its properties
 		this.createPane();
@@ -82,54 +115,54 @@ public class CityLodgeMain extends Application {
 
 	// Sends menu option to controller
 	public void addHandlers() {
-		
-		//Add room
+
+		// Add room
 		this.btAdd.setOnAction((ActionEvent e) -> {
 			this.controller.handleClickEvents(1);
 		});
-		//Rent room
+		// Rent room
 		this.btRent.setOnAction((ActionEvent e) -> {
 			this.controller.handleClickEvents(2);
 		});
-		//Return room
+		// Return room
 		this.btReturn.setOnAction((ActionEvent e) -> {
 			this.controller.handleClickEvents(3);
 		});
-		//Room maintenance
+		// Room maintenance
 		this.btMaint.setOnAction((ActionEvent e) -> {
 			this.controller.handleClickEvents(4);
 		});
-		//Complete maintenance
+		// Complete maintenance
 		this.btMaintComplete.setOnAction((ActionEvent e) -> {
 			this.controller.handleClickEvents(5);
 		});
-		//Export data
+		// Export data
 		this.btExport.setOnAction((ActionEvent e) -> {
 			this.controller.handleClickEvents(6);
 		});
-		//Import Data
+		// Import Data
 		this.btImport.setOnAction((ActionEvent e) -> {
 			this.controller.handleClickEvents(7);
 		});
-		//Exit program
+		// Exit program
 		this.btQuit.setOnAction((ActionEvent e) -> {
 			System.exit(0);
 		});
-		
+
 	}
-	
-	//Creates pane for main display and sets locally
+
+	// Creates pane for main display and sets locally
 	public void createPane() {
-		
+
 		this.pane = new GridPane();
 		this.pane.setAlignment(Pos.TOP_LEFT);
 		this.pane.setPadding(new Insets(11.5, 12.5, 13.5, 14.5));
 		this.pane.setHgap(5.5);
 		this.pane.setVgap(5.5);
-		
+
 	}
 
-	//Creates buttons for main display and sets locally
+	// Creates buttons for main display and sets locally
 	public void createButtons() {
 
 		this.btAdd = new Button("Add Room");
@@ -140,7 +173,7 @@ public class CityLodgeMain extends Application {
 		this.btExport = new Button("Export Data");
 		this.btImport = new Button("Import Data");
 		this.btQuit = new Button("Quit");
-		
+
 		// Place menu buttons in the pane
 		this.pane.add(this.btAdd, 0, 0);
 		this.pane.add(this.btRent, 0, 1);
@@ -153,39 +186,7 @@ public class CityLodgeMain extends Application {
 
 	}
 
-	// Initialises and connects Database, if sucessful, initialise rest of program.
-	public void connectDatabase() {
-		
-		try {
-			CityLodgeDB database = new CityLodgeDB();
-			
-			// On database sucess
-			AlertMessage success = new AlertMessage(AlertType.INFORMATION, "Database Status", "Connection to Database Successful!");
-			success.showAndWait();
-			
-			// Initialising program
-			CityLodge citylodge = new CityLodge();
-			this.controller = new Controller(citylodge, database);
-			citylodge.setController(this.controller);
-
-		} catch (Exception e) {
-
-			Alert failure = new Alert(AlertType.WARNING);
-			failure.setTitle("Database Status");
-			failure.setHeaderText("Database Status");
-			failure.setContentText("Connection to Database Failed. Program Aborting.");
-			failure.showAndWait();
-
-			e.printStackTrace();
-			System.exit(1);
-		}
-
-		// Add all database tables here once, then never do it again.
-		// Manipulate the database through the methods in the Controller class.
-
-	}
-	
-	//Main method
+	// Main method
 	public static void main(String[] args) {
 
 		Application.launch(args);

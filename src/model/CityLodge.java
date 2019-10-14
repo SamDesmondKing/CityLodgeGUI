@@ -4,7 +4,6 @@ import java.util.Scanner;
 
 import controller.Controller;
 import javafx.scene.control.TextInputDialog;
-import view.CustomDialog;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -15,74 +14,6 @@ public class CityLodge {
 
 	private ArrayList<Room> roomArray = new ArrayList<Room>();
 	private Controller controller;
-
-	//TODO GUI-ify these methods
-	//TODO Custom exception-ify these methods (do last). 
-	
-	// Takes and validates input to create Suite, adds to roomArray
-	public void addSuite() {
-
-		Scanner sc = new Scanner(System.in);
-
-		// Taking roomID
-		System.out.println("Enter the room ID, beginning with 'S_' :");
-		String roomID = sc.nextLine().trim().toUpperCase();
-
-		//If empty, generate random ID
-		if (roomID.isEmpty()) {
-			Random random = new Random();
-			int roomNo = random.nextInt(99999);
-			roomID = "S_" + roomNo;
-		}
-		
-		// RoomID validity check
-		if (roomID.charAt(0) != 'S' || roomID.charAt(1) != '_') {
-			System.out.println("Invalid room ID, room not created. Returning to main menu.");
-			sc.close();
-			return;
-		}
-
-		// RoomID uniqueness check
-		if (!this.checkRoomID(roomID)) {
-			System.out.println(
-					"Error - a room with that RoomID already exists. Room not created, returning to main menu.");
-			sc.close();
-			return;
-		}
-
-		// Taking feature summary.
-		System.out.println("Enter the feature summary:");
-		String featureSummary = sc.nextLine();
-
-		// Feature summary validation (20 words or less)
-		if (!this.checkFeatureSummary(featureSummary)) {
-			System.out.println("Error: feature summary must be 20 words or less. Returning to main menu.");
-			sc.close();
-			return;
-		}
-
-		// Taking last maintenance date.
-		System.out.println("Last maintenance date (dd/mm/yyyy): ");
-		String dateString = sc.nextLine().trim();
-		DateTime lastMaintenanceDate = this.stringToDateTime(dateString);
-
-		// Validating last maintenance date
-		DateTime today = new DateTime();
-		if (DateTime.diffDays(today, lastMaintenanceDate) <= 0) {
-
-			System.out.println("Error: last maintenance date cannot be in the future. Room not created.");
-			sc.close();
-			return;
-		}
-
-		// If we made it to here Suite is good to go.
-		Suite thisRoom = new Suite(roomID, 6, featureSummary, lastMaintenanceDate);
-
-		// Adding new Suite to roomArray.
-		this.addToArray(thisRoom);
-		
-		sc.close();
-	}
 
 	// Adds Room to roomArray. Deletes oldest Room if full (50 Rooms)
 	public void addToArray(Room thisRoom) {
@@ -111,70 +42,6 @@ public class CityLodge {
 			}
 		}
 		return true;
-	}
-
-	// Checks String is less than 20 words by counting spaces.
-	public boolean checkFeatureSummary(String featureSummary) {
-
-		int spaceCount = 0;
-		for (char i : featureSummary.toCharArray()) {
-
-			if (i == ' ') {
-				spaceCount++;
-			}
-		}
-
-		if (spaceCount > 19) {
-
-			return false;
-		} else {
-
-			return true;
-		}
-	}
-
-	// Takes RoomID as search target, validates and calls rent() on chosen Room.
-	public void callRentRoom() {
-
-		Scanner sc = new Scanner(System.in);
-		System.out.println("Room ID: ");
-		String searchID = sc.nextLine().trim();
-
-		// Checking room exists
-		Room searchTarget = this.searchRoomByID(searchID);
-
-		if (searchTarget == null) {
-			System.out.println("Error: Room not found. Returning to main menu.");
-			sc.close();
-			return;
-		}
-
-		// Checking room availability
-		if (!searchTarget.getRoomStatus().equals("Available")) {
-			System.out.println("Error: Room not available. Returning to main menu.");
-			sc.close();
-			return;
-		}
-
-		// Taking customerID
-		System.out.println("Customer ID: ");
-		String customerID = sc.nextLine().toUpperCase();
-
-		// Taking rent date
-		System.out.println("Rent date (dd/mm/yyyy): ");
-		String dateString = sc.nextLine().trim();
-		DateTime rentDate = this.stringToDateTime(dateString);
-
-		// Taking numOfRentDays
-		System.out.println("How many days?: ");
-		int numOfRentDays = sc.nextInt();
-		sc.close();
-		
-		if (searchTarget.rent(customerID, rentDate, numOfRentDays)) {
-			System.out.println("Room " + searchTarget.getRoomID() + " is now rented by customer " + customerID);
-		} else {
-			System.out.println("Returning to main menu.");
-		}
 	}
 
 	// Takes roomID as input and calls returnRoom() on Room object with that ID.
@@ -280,23 +147,20 @@ public class CityLodge {
 		return result;
 	}
 
-	// Takes date as string and converts it to DateTime, returns DateTime.
+	public void setController(Controller controller) {
+		this.controller = controller;
+	}
+	
 	public DateTime stringToDateTime(String dateString) {
 
 		String intValue = dateString.replaceAll("[^0-9]", "");
-
 		int day = Integer.parseInt(intValue.substring(0, 2));
 		int month = Integer.parseInt(intValue.substring(2, 4));
 		int year = Integer.parseInt(intValue.substring(4, 8));
-
 		DateTime Date = new DateTime(day, month, year);
 
 		return Date;
 
-	}
-
-	public void setController(Controller controller) {
-		this.controller = controller;
 	}
 	
 }
