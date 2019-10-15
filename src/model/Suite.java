@@ -97,4 +97,8 @@ public class Suite extends Room {
 	public void setLastMaintenanceDate(DateTime lastMaintenanceDate) {
 		this.lastMaintenanceDate = lastMaintenanceDate;
 	}
+	
+	public DateTime getLastMaintDate() {
+		return this.lastMaintenanceDate;
+	}
 }

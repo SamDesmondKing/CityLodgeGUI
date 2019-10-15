@@ -13,7 +13,8 @@ public abstract class Room {
 	private String featureSummary;
 	private double rentalRate;
 	private String roomType;
-
+	private String imagePath;
+	
 	// Flexible
 	private String roomStatus;
 
@@ -27,6 +28,7 @@ public abstract class Room {
 		this.numBeds = numBeds;
 		this.featureSummary = featureSummary;
 		this.roomStatus = "Available";
+		this.imagePath = "images/defaultImage";
 
 		// Set rental rates and room type based on number of beds
 		if (numBeds == 1) {
@@ -49,18 +51,17 @@ public abstract class Room {
 	abstract public String toString();
 	abstract public String getDetails();
 
-	//Checks conditions and sets roomStatus to 'Maintenance'.TODO Exception
-	public boolean performMaintenance() {
+	//Checks conditions and sets roomStatus to 'Maintenance'
+	public void performMaintenance() throws MaintenanceException {
 
 		if (this.getRoomStatus().equalsIgnoreCase("Available")) {
 			this.setRoomStatus("Maintenance");
-			return true;
 		} else {
-			return false;
+			throw new MaintenanceException("Error: Room Not Avialable for Maintenance.","Returning to main menu.");
 		}
 	}
 
-	//Checks conditions and sets roomStatus to 'Available'.TODO Exception
+	//Checks conditions and sets roomStatus to 'Available'.
 	public void completeMaintenance(DateTime completionDate) throws MaintenanceException {
 
 		DateTime today = new DateTime();
@@ -157,5 +158,16 @@ public abstract class Room {
 	public void setRoomStatus(String status) {
 		this.roomStatus = status;
 	}
-
+	
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+	
+	public String getImagePath() {
+		return this.imagePath;
+	}
+	
+	public ArrayList<HiringRecord> getHiringRecords() {
+		return this.hiringRecords;
+	}
 }

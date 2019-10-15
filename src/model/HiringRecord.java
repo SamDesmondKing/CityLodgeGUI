@@ -7,47 +7,61 @@ public class HiringRecord {
 	private DateTime rentDate;
 	private DateTime estimatedReturnDate;
 	private double rentalRate;
-	
+
 	// On returning
 	private DateTime returnDate;
 	private double rentalFee;
 	private double lateFee;
 	private boolean returned;
 
-	// Constructor
+	// Constructor for new hiring records
 	public HiringRecord(String recordID, DateTime rentDate, DateTime estimatedReturnDate, double rentalRate) {
 
 		this.recordID = recordID;
 		this.rentDate = rentDate;
 		this.estimatedReturnDate = estimatedReturnDate;
 		this.rentalRate = rentalRate;
-
 	}
-	
-	//Calculates and sets returnDate, lateFee (if any) and rentalFee (total due including lateFee).
+
+	// Contructor for existing hiring records added from database
+	public HiringRecord(String recordID, DateTime rentDate, DateTime estimatedReturnDate, double rentalRate,
+			DateTime returnDate, double rentalFee, double lateFee, boolean returned) {
+		
+		this.recordID = recordID;
+		this.rentDate = rentDate;
+		this.estimatedReturnDate = estimatedReturnDate;
+		this.rentalRate = rentalRate;
+		this.returnDate = returnDate;
+		this.rentalFee = rentalFee;
+		this.lateFee = lateFee;
+		this.returned = returned;
+	}
+
+	// Calculates and sets returnDate, lateFee (if any) and rentalFee (total due
+	// including lateFee).
 	public void squareOff(DateTime returnDate) {
-		
+
 		double rent;
-		
+
 		this.returnDate = returnDate;
 		this.returned = true;
-		
+
 		int bookedDays = DateTime.diffDays(estimatedReturnDate, this.rentDate);
 		int actualDays = DateTime.diffDays(returnDate, this.rentDate);
-		
-		//If returned on time
+
+		// If returned on time
 		if (actualDays <= bookedDays) {
 			this.rentalFee = (this.rentalRate * actualDays);
-			
-		//If late
+
+			// If late
 		} else {
 			rent = (this.rentalRate * bookedDays);
-			
-			//For Suite
+
+			// For Suite
 			if (this.rentalRate == 999) {
 				this.lateFee = (actualDays - bookedDays) * 1099;
-				
-			//For StandardRoom
+
+				// For StandardRoom
 			} else {
 				this.lateFee = (actualDays - bookedDays) * (this.rentalRate * 1.35);
 			}
@@ -76,20 +90,20 @@ public class HiringRecord {
 
 	// Returns custom human-readable info String
 	public String getDetails() {
-		
+
 		String details = "\nRecord ID:			" + this.recordID + "\nRent Date:			" + this.rentDate
 				+ "\nEstimated Return Date:  	" + this.estimatedReturnDate;
 
 		if (this.returned) {
 
-			details += "\nActual Return Date:		"
-					+ this.returnDate + "\nRental Fee:			" + String.format("%.2f", this.rentalFee) + "\nLate Fee:			"
+			details += "\nActual Return Date:		" + this.returnDate + "\nRental Fee:			"
+					+ String.format("%.2f", this.rentalFee) + "\nLate Fee:			"
 					+ String.format("%.2f", this.lateFee);
 		}
-		
-		//Divider line
+
+		// Divider line
 		details += "\n--------------------------------------------";
-		
+
 		return details;
 	}
 
@@ -97,28 +111,36 @@ public class HiringRecord {
 	public String getRecordID() {
 		return this.recordID;
 	}
-	
+
 	public DateTime getRentDate() {
 		return this.rentDate;
 	}
-	
+
 	public DateTime getEstimatedReturnDate() {
 		return this.estimatedReturnDate;
 	}
-	
+
 	public DateTime getReturnDate() {
 		return this.returnDate;
 	}
-	
+
 	public double getRentalFee() {
 		return this.rentalFee;
 	}
-	
+
 	public double getLateFee() {
 		return this.lateFee;
 	}
-	
+
 	public void setReturnDate(DateTime returnDate) {
 		this.returnDate = returnDate;
+	}
+	
+	public double getRentalRate() {
+		return this.rentalRate;
+	}
+	
+	public boolean getReturned() {
+		return this.returned;
 	}
 }

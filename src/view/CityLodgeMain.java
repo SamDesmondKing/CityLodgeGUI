@@ -1,25 +1,25 @@
 package view;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import javax.swing.JOptionPane;
 import controller.Controller;
-import controller.CustomHandler;
-import javafx.animation.PathTransition;
-import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.*;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
@@ -31,7 +31,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import model.CityLodge;
 import model.database.CityLodgeDB;
-import model.exceptions.DatabaseException;
+import model.exceptions.InvalidInputException;
 
 public class CityLodgeMain extends Application {
 
@@ -45,19 +45,17 @@ public class CityLodgeMain extends Application {
 	private Button btExport;
 	private Button btImport;
 	private Button btQuit;
+	private Button btDisplay;
 
 	private GridPane pane;
 	
 	//TODO
 	//
-	/*	MONDAY
-	 *  - Add custom exceptions to specified methods
-	 *  TUESDAY
-	 *  - Configure Database
-	 *  - Add Sample rooms to database 
+	/*	
+	 *  THURSDAY
 	 *  - Add ability to export data
 	 *  - Add ability to import data
-	 *  THURSDAY - SATURDAY
+	 *  SATURDAY
 	 *  - Create final GUI design
 	 *  - Test.
 	 */
@@ -68,40 +66,90 @@ public class CityLodgeMain extends Application {
 		// Connect CityLodgeBD
 		try {
 			CityLodgeDB database = new CityLodgeDB();
-			
-			AlertMessage success = new AlertMessage(AlertType.CONFIRMATION, "Database Status", "Connection to database successful.");
-			success.showAndWait();
-			
 			// Initialise program
 			CityLodge citylodge = new CityLodge();
 			this.controller = new Controller(citylodge, database);
 			citylodge.setController(this.controller);
+			database.setController(this.controller);
+			
+			//Load data from database into citylodge array
+			database.initialise();
+			
+		} catch (InvalidInputException e) {
+			e.getError();
 
 		} catch (Exception e) {
-
 			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Database Status", "Connection to Database Failed. Program Aborting.");
 			failure.showAndWait();
 			e.printStackTrace();
 			System.exit(1);
 		}
 
+		// ---- GUI ----
+		
+        primaryStage.setTitle("CityLodge Room Manager");
 
-		// Create a pane and set its properties
-		this.createPane();
-		// Add buttons
-		this.createButtons();
-		// Adding event handlers to buttons
-		this.addHandlers();
+        ListView listView = new ListView();
 
-		// Place list of rooms in the pane
+        listView.getItems().add("Item 1");
+        listView.getItems().add("Item 2");
+        listView.getItems().add("Item 3");
+        
+		MenuBar menuBar = new MenuBar();
+		Menu menuIcon = new Menu("Menu");
+		
+		MenuItem addRoom = new MenuItem("Add Room");
+		MenuItem rentRoom = new MenuItem("Rent Room");
+		MenuItem returnRoom = new MenuItem("Return Room");
+		MenuItem beginMaint = new MenuItem("Begin Maintenance");
+		MenuItem endMaint = new MenuItem("End Maintenance");
+		MenuItem export = new MenuItem("Export Data");
+		MenuItem inport = new MenuItem("Import Data");
+		MenuItem display = new MenuItem("Display Room Data");
+		MenuItem quit = new MenuItem("Quit");
+		
+        menuIcon.getItems().addAll(addRoom, rentRoom, returnRoom, beginMaint, endMaint, export, inport, display, quit);
+        menuBar.getMenus().addAll(menuIcon);
 
-		// Create a scene and place it in the stage
-		Scene scene = new Scene(pane);
-		primaryStage.setTitle("CityLodge");
-		primaryStage.setScene(scene);
-		primaryStage.initStyle(StageStyle.UTILITY);
-		primaryStage.show();
+		addRoom.setOnAction((ActionEvent e) -> {
+			this.controller.mainMenu(1);
+		});
+		rentRoom.setOnAction((ActionEvent e) -> {
+			this.controller.mainMenu(2);
+		});
+		returnRoom.setOnAction((ActionEvent e) -> {
+			this.controller.mainMenu(3);
+		});
+		beginMaint.setOnAction((ActionEvent e) -> {
+			this.controller.mainMenu(4);
+		});
+		endMaint.setOnAction((ActionEvent e) -> {
+			this.controller.mainMenu(5);
+		});
+		export.setOnAction((ActionEvent e) -> {
+			this.controller.mainMenu(6);
+		});
+		inport.setOnAction((ActionEvent e) -> {
+			this.controller.mainMenu(7);
+		});
+		quit.setOnAction((ActionEvent e) -> {
+			this.controller.mainMenu(8);
+		});
+		display.setOnAction((ActionEvent e) -> {
+			this.controller.mainMenu(9);
+		});
+        
+        BorderPane bpane = new BorderPane(listView);
+        
+        bpane.setTop(menuBar);
 
+        Scene scene = new Scene(bpane, 800, 400);
+        primaryStage.setScene(scene);
+        primaryStage.initStyle(StageStyle.UTILITY);
+        primaryStage.show();
+       
+		
+		
 		/*
 		 * Scene switching example Button btOK = new Button("Click me"); Scene scene =
 		 * new Scene(btOK, 200, 250); btOK.setOnAction(new CustomHandler(primaryStage,
@@ -111,78 +159,20 @@ public class CityLodgeMain extends Application {
 		 */
 
 	}
-
-	// Sends menu option to controller
-	public void addHandlers() {
-
-		// Add room
-		this.btAdd.setOnAction((ActionEvent e) -> {
-			this.controller.mainMenu(1);
-		});
-		// Rent room
-		this.btRent.setOnAction((ActionEvent e) -> {
-			this.controller.mainMenu(2);
-		});
-		// Return room
-		this.btReturn.setOnAction((ActionEvent e) -> {
-			this.controller.mainMenu(3);
-		});
-		// Room maintenance
-		this.btMaint.setOnAction((ActionEvent e) -> {
-			this.controller.mainMenu(4);
-		});
-		// Complete maintenance
-		this.btMaintComplete.setOnAction((ActionEvent e) -> {
-			this.controller.mainMenu(5);
-		});
-		// Export data
-		this.btExport.setOnAction((ActionEvent e) -> {
-			this.controller.mainMenu(6);
-		});
-		// Import Data
-		this.btImport.setOnAction((ActionEvent e) -> {
-			this.controller.mainMenu(7);
-		});
-		// Exit program
-		this.btQuit.setOnAction((ActionEvent e) -> {
-			System.exit(0);
-		});
-
-	}
-
-	// Creates pane for main display and sets locally
-	public void createPane() {
-
-		this.pane = new GridPane();
-		this.pane.setAlignment(Pos.TOP_LEFT);
-		this.pane.setPadding(new Insets(11.5, 12.5, 13.5, 14.5));
-		this.pane.setHgap(5.5);
-		this.pane.setVgap(5.5);
-
-	}
-
-	// Creates buttons for main display and sets locally
-	public void createButtons() {
-
-		this.btAdd = new Button("Add Room");
-		this.btRent = new Button("Rent Room");
-		this.btReturn = new Button("Return Room");
-		this.btMaint = new Button("Room Maintenance");
-		this.btMaintComplete = new Button("Complete Maintenance");
-		this.btExport = new Button("Export Data");
-		this.btImport = new Button("Import Data");
-		this.btQuit = new Button("Quit");
-
-		// Place menu buttons in the pane
-		this.pane.add(this.btAdd, 0, 0);
-		this.pane.add(this.btRent, 0, 1);
-		this.pane.add(this.btReturn, 0, 2);
-		this.pane.add(this.btMaint, 0, 3);
-		this.pane.add(this.btMaintComplete, 0, 4);
-		this.pane.add(this.btExport, 0, 6);
-		this.pane.add(this.btImport, 0, 7);
-		this.pane.add(this.btQuit, 0, 12);
-
+	
+	//Saves program to database on closing window.
+	@Override
+	public void stop() {
+		
+		System.out.println("Saving");
+		try {
+			this.controller.getDatabase().saveData();
+			System.out.println("Saved");
+			this.controller.getDatabase().shutdown();
+			System.out.println("Shutting down");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	// Main method

@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 import controller.Controller;
 import javafx.scene.control.TextInputDialog;
+import model.exceptions.InvalidInputException;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -23,7 +24,7 @@ public class CityLodge {
 		} else {
 			this.roomArray.remove(0);
 			this.roomArray.add(thisRoom);
-		}
+		}		
 	}
 
 	// Returns true if roomID is unique in roomArray, false otherwise.
@@ -45,15 +46,18 @@ public class CityLodge {
 		}
 	}
 
-	// Searches roomArray by roomID and returns room if found, null otherwise.
-	public Room searchRoomByID(String searchRequest) {
+	// Searches roomArray by roomID 
+	public Room searchRoomByID(String searchRequest) throws InvalidInputException {
 
 		Room result = null;
 		for (Room i : roomArray) {
 			if (i.getRoomID().equalsIgnoreCase(searchRequest)) {
-
 				result = i;
 			}
+		}
+		
+		if (result == null) {
+			throw new InvalidInputException("Error: Room Not Found","Returning to main menu.");
 		}
 		return result;
 	}
@@ -62,16 +66,27 @@ public class CityLodge {
 		this.controller = controller;
 	}
 	
-	public DateTime stringToDateTime(String dateString) {
+	public DateTime stringToDateTime(String dateString) throws InvalidInputException {
 
+		DateTime Date;
 		String intValue = dateString.replaceAll("[^0-9]", "");
 		int day = Integer.parseInt(intValue.substring(0, 2));
 		int month = Integer.parseInt(intValue.substring(2, 4));
 		int year = Integer.parseInt(intValue.substring(4, 8));
-		DateTime Date = new DateTime(day, month, year);
+
+		try {
+			Date = new DateTime(day, month, year);
+			} catch (Exception e) {
+				throw new InvalidInputException("Error with DateTime conversion","Contact Sam for details.");
+			}
 
 		return Date;
 
 	}
+
+	public ArrayList<Room> getRoomArray() {
+		return this.roomArray;
+	}
 	
 }
+

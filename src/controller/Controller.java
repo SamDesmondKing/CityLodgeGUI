@@ -2,12 +2,11 @@ package controller;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
-import java.util.Scanner;
-
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import model.CityLodge;
@@ -24,9 +23,6 @@ import view.AlertMessage;
 import view.CustomChoiceDialog;
 import view.CustomInputDialog;
 
-//TODO addRoomDB()
-//TODO saveRooms()
-
 public class Controller {
 
 	private CityLodgeDB database;
@@ -38,22 +34,6 @@ public class Controller {
 		this.database = database;
 	}
 
-	public void dropAllTables() {
-
-		ResultSet result = null;
-
-		try (Connection connection = database.getConnection();
-				Statement thisStatement = connection.createStatement();) {
-
-			result = thisStatement.executeQuery("DROP SCHEMA PUBLIC CASCADE");
-			System.out.println("Tables dropped");
-
-		} catch (Exception e) {
-			e.printStackTrace(System.out);
-		}
-	}
-
-	// TODO Handle Exceptions here
 	public void mainMenu(int menuInput) {
 
 		// Add room
@@ -65,41 +45,49 @@ public class Controller {
 				} catch (InvalidInputException e) {
 					e.getError();
 				}
-				// addRoomDB() TODO
 			} else if (result == 2) {
 				try {
 					this.addSuite();
 				} catch (InvalidInputException e) {
 					e.getError();
 				}
-				// addRoomDB() TODO
 			}
 			// Rent room
 		} else if (menuInput == 2) {
 			try {
 				this.callRentRoom();
 			} catch (InvalidInputException e) {
-				e.getError(); // - *********************TEST
+				e.getError();
 			} catch (RentalException e) {
 				e.getError();
 			}
-			// saveRooms() TODO
-
 			// Return room
 		} else if (menuInput == 3) {
-			// this.callReturnRoom();
-			// saveRooms() TODO
-
+			try {
+				this.callReturnRoom();
+			} catch (InvalidInputException e) {
+				e.getError();
+			} catch (ReturnException e) {
+				e.getError();
+			}
 			// Begin maintenance
 		} else if (menuInput == 4) {
-			// this.callPerformMaintenance();
-			// saveRooms() TODO
-
+			try {
+				this.callPerformMaintenance();
+			} catch (InvalidInputException e) {
+				e.getError();
+			} catch (MaintenanceException e) {
+				e.getError();
+			}
 			// End maintenance
 		} else if (menuInput == 5) {
-			// this.callCompleteMaintenance();
-			// saveRooms() TODO
-
+			try {
+				this.callCompleteMaintenance();
+			} catch (InvalidInputException e) {
+				e.getError();
+			} catch (MaintenanceException e) {
+				e.getError();
+			}
 			// Export data TODO
 		} else if (menuInput == 6) {
 			this.citylodge.displayRooms();
@@ -108,6 +96,16 @@ public class Controller {
 		} else if (menuInput == 7) {
 			this.citylodge.displayRooms();
 
+		} else if (menuInput == 8) {
+			try {
+				this.database.saveData();
+				this.database.shutdown();
+				System.exit(0);
+			} catch (SQLException e) {
+				System.out.println("SQL exception");
+			}
+		} else if (menuInput == 9) {
+			citylodge.displayRooms();
 		}
 	}
 
@@ -116,7 +114,7 @@ public class Controller {
 
 		// Taking room ID
 		String roomID = this.takeID();
-
+		
 		// Throws InvalidInputException
 		Room thisRoom = citylodge.searchRoomByID(roomID);
 
@@ -348,7 +346,7 @@ public class Controller {
 
 	}
 
-	// Takes a date input from user - reduces code repitition
+	// Takes a date input from user - reduces code repitition - consider letting datetime exception propogate through****
 	public DateTime takeDate(String context) throws InvalidInputException {
 
 		DateTime date = null;
@@ -472,5 +470,13 @@ public class Controller {
 		}
 
 		return choice;
+	}
+	
+	public CityLodge getCityLodge() {
+		return this.citylodge;
+	}
+	
+	public CityLodgeDB getDatabase() {
+		return this.database;
 	}
 }
