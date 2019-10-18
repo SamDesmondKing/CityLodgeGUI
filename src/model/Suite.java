@@ -7,13 +7,13 @@ public class Suite extends Room {
 
 	private DateTime lastMaintenanceDate;
 
-	// Constructor
 	public Suite(String roomID, int numBeds, String featureSummary, DateTime maintenanceDate) {
 
 		super(roomID, numBeds, featureSummary);
 
 		this.lastMaintenanceDate = maintenanceDate;
 	}
+	
 
 	// Done (Version 2 - untested)
 	public void rent(String customerID, DateTime rentDate, int numOfRentDays) throws RentalException {

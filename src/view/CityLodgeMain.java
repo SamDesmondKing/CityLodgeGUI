@@ -2,33 +2,19 @@ package view;
 
 import java.sql.SQLException;
 import controller.Controller;
+import controller.ExportHandler;
+import controller.ImportHandler;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.TilePane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Duration;
 import model.CityLodge;
 import model.database.CityLodgeDB;
 import model.exceptions.InvalidInputException;
@@ -36,24 +22,10 @@ import model.exceptions.InvalidInputException;
 public class CityLodgeMain extends Application {
 
 	private Controller controller;
-
-	private Button btAdd;
-	private Button btRent;
-	private Button btReturn;
-	private Button btMaint;
-	private Button btMaintComplete;
-	private Button btExport;
-	private Button btImport;
-	private Button btQuit;
-	private Button btDisplay;
-
-	private GridPane pane;
 	
 	//TODO
-	//
 	/*	
 	 *  THURSDAY
-	 *  - Add ability to export data
 	 *  - Add ability to import data
 	 *  SATURDAY
 	 *  - Create final GUI design
@@ -85,7 +57,7 @@ public class CityLodgeMain extends Application {
 			System.exit(1);
 		}
 
-		// ---- GUI ----
+		// ---- GUI ---- ***MODULARISE LATER?
 		
         primaryStage.setTitle("CityLodge Room Manager");
 
@@ -97,20 +69,22 @@ public class CityLodgeMain extends Application {
         
 		MenuBar menuBar = new MenuBar();
 		Menu menuIcon = new Menu("Menu");
-		
 		MenuItem addRoom = new MenuItem("Add Room");
 		MenuItem rentRoom = new MenuItem("Rent Room");
 		MenuItem returnRoom = new MenuItem("Return Room");
 		MenuItem beginMaint = new MenuItem("Begin Maintenance");
 		MenuItem endMaint = new MenuItem("End Maintenance");
 		MenuItem export = new MenuItem("Export Data");
-		MenuItem inport = new MenuItem("Import Data");
+		MenuItem importData = new MenuItem("Import Data");
 		MenuItem display = new MenuItem("Display Room Data");
 		MenuItem quit = new MenuItem("Quit");
 		
-        menuIcon.getItems().addAll(addRoom, rentRoom, returnRoom, beginMaint, endMaint, export, inport, display, quit);
+        menuIcon.getItems().addAll(addRoom, rentRoom, returnRoom, beginMaint, endMaint, export, importData, display, quit);
         menuBar.getMenus().addAll(menuIcon);
 
+        //Using lambda expressions to send button clicks through
+        //to the main Controller class, which calls CityLodge methods.  
+        //Knowledge of custom handler classes also demonstrated below. 
 		addRoom.setOnAction((ActionEvent e) -> {
 			this.controller.mainMenu(1);
 		});
@@ -126,29 +100,28 @@ public class CityLodgeMain extends Application {
 		endMaint.setOnAction((ActionEvent e) -> {
 			this.controller.mainMenu(5);
 		});
-		export.setOnAction((ActionEvent e) -> {
-			this.controller.mainMenu(6);
-		});
-		inport.setOnAction((ActionEvent e) -> {
-			this.controller.mainMenu(7);
-		});
 		quit.setOnAction((ActionEvent e) -> {
 			this.controller.mainMenu(8);
 		});
+		
 		display.setOnAction((ActionEvent e) -> {
 			this.controller.mainMenu(9);
 		});
+		
         
-        BorderPane bpane = new BorderPane(listView);
-        
-        bpane.setTop(menuBar);
+		//Export data custom handler
+		export.setOnAction(new ExportHandler(this.controller, primaryStage));
+		
+		//Import data custom handler
+		importData.setOnAction(new ImportHandler(this.controller, primaryStage));
 
+		// Rest of the GUI. 
+        BorderPane bpane = new BorderPane(listView);
+        bpane.setTop(menuBar);
         Scene scene = new Scene(bpane, 800, 400);
         primaryStage.setScene(scene);
         primaryStage.initStyle(StageStyle.UTILITY);
         primaryStage.show();
-       
-		
 		
 		/*
 		 * Scene switching example Button btOK = new Button("Click me"); Scene scene =

@@ -5,15 +5,12 @@ import java.sql.Statement;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.swing.JOptionPane;
-
 import controller.Controller;
 import model.DateTime;
 import model.HiringRecord;
 import model.Room;
 import model.StandardRoom;
 import model.Suite;
-import model.exceptions.DatabaseException;
 import model.exceptions.InvalidInputException;
 
 public class CityLodgeDB {
@@ -25,27 +22,20 @@ public class CityLodgeDB {
 
 		final String DB_NAME = "CityLodgeDB";
 
-		// GUI connection command: java -cp libraries/hsqldb.jar
-		// org.hsqldb.util.DatabaseManagerSwing
+		// GUI connection command: java -cp libraries/hsqldb.jar org.hsqldb.util.DatabaseManagerSwing
 
 		// Connect database
 		Class.forName("org.hsqldb.jdbc.JDBCDriver");
 		this.con = DriverManager.getConnection("jdbc:hsqldb:file:database/" + DB_NAME, "SA", "");
 
-		// this.saveData();
-
 	}
 
+	// Shuts down the database gracefully by excecuting SHUTDOWN command.
 	public void shutdown() throws SQLException {
 
-		// Saves data from citylodge to database
-		// this.saveData();
-
-		// Shuts down the database gracefully by excecuting SHUTDOWN command.
 		Statement statement = con.createStatement();
 		statement.execute("SHUTDOWN");
 		this.con.close();
-
 	}
 
 	// Add data from database to citylodge array
@@ -89,14 +79,21 @@ public class CityLodgeDB {
 			Boolean returned = hiringRecords.getBoolean("RETURNED");
 			String roomID = hiringRecords.getString("ROOMID").trim();
 
-			// Date conversion - thows invalid input exception to main if error.
-			DateTime rentDateTime = stringToDateTime(rentDate);
 			DateTime estReturnDateTime = stringToDateTime(estReturnDate);
-			DateTime returnDateTime = stringToDateTime(returnDate);
-
-			HiringRecord newHR = new HiringRecord(recordID, rentDateTime, estReturnDateTime, rentalRate, returnDateTime,
+			DateTime rentDateTime = stringToDateTime(rentDate);
+			
+			HiringRecord newHR = null;
+			
+			if (returned == true) {
+				DateTime returnDateTime = stringToDateTime(returnDate);
+				newHR = new HiringRecord(recordID, rentDateTime, estReturnDateTime, rentalRate, returnDateTime,
 					rentalFee, lateFee, returned);
-
+			} else {
+				newHR = new HiringRecord(recordID, rentDateTime, estReturnDateTime, rentalRate);
+			}
+			
+			//String recordID, DateTime rentDate, DateTime estimatedReturnDate, double rentalRate
+			
 			// Again, throws invalid imput exception to main if error - main will print
 			// specific error message.
 			Room owningRoom = this.controller.getCityLodge().searchRoomByID(roomID);
@@ -108,6 +105,7 @@ public class CityLodgeDB {
 		// Clean up
 		rooms.close();
 		stmt.close();
+		hiringRecords.close();
 	}
 
 	// Write data from citylodge array to database - can be done after every
@@ -166,6 +164,8 @@ public class CityLodgeDB {
 						+ j.getRentalFee() + "," + j.getLateFee() + "," + j.getReturned() + ",'" + i.getRoomID()
 						+ "')");
 			}
+			drop.close();
+			update.close();
 		}
 	}
 

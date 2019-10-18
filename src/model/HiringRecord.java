@@ -14,7 +14,7 @@ public class HiringRecord {
 	private double lateFee;
 	private boolean returned;
 
-	// Constructor for new hiring records
+	// Constructor for new hiring records (and existing open records imported from file or database)
 	public HiringRecord(String recordID, DateTime rentDate, DateTime estimatedReturnDate, double rentalRate) {
 
 		this.recordID = recordID;
@@ -23,7 +23,7 @@ public class HiringRecord {
 		this.rentalRate = rentalRate;
 	}
 
-	// Contructor for existing hiring records added from database
+	// Contructor for closed hiring records imported from file or database
 	public HiringRecord(String recordID, DateTime rentDate, DateTime estimatedReturnDate, double rentalRate,
 			DateTime returnDate, double rentalFee, double lateFee, boolean returned) {
 		
@@ -36,6 +36,8 @@ public class HiringRecord {
 		this.lateFee = lateFee;
 		this.returned = returned;
 	}
+	
+	
 
 	// Calculates and sets returnDate, lateFee (if any) and rentalFee (total due
 	// including lateFee).

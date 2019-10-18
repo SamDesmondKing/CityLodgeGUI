@@ -109,7 +109,7 @@ public abstract class Room {
 		}
 	}
 
-	// Gets rental records from the HiringRecord array of this room object.
+	// Gets rental records from the HiringRecord array of this room object. ************************need a way to limit this to 10
 	public String getAllHiringRecords() {
 
 		String rentalRecord = "";
@@ -117,7 +117,7 @@ public abstract class Room {
 		if (hiringRecords.size() == 0) {
 			rentalRecord = "empty";
 		} else {
-			for (HiringRecord i : hiringRecords) {
+			for (HiringRecord i : this.hiringRecords) {
 				rentalRecord += i.getDetails();
 			}
 		}

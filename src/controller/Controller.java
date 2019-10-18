@@ -1,9 +1,9 @@
 package controller;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
@@ -11,6 +11,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import model.CityLodge;
 import model.DateTime;
+import model.HiringRecord;
 import model.Room;
 import model.StandardRoom;
 import model.Suite;
@@ -52,7 +53,7 @@ public class Controller {
 					e.getError();
 				}
 			}
-			// Rent room
+		// Rent room
 		} else if (menuInput == 2) {
 			try {
 				this.callRentRoom();
@@ -61,7 +62,7 @@ public class Controller {
 			} catch (RentalException e) {
 				e.getError();
 			}
-			// Return room
+		// Return room
 		} else if (menuInput == 3) {
 			try {
 				this.callReturnRoom();
@@ -70,7 +71,7 @@ public class Controller {
 			} catch (ReturnException e) {
 				e.getError();
 			}
-			// Begin maintenance
+		// Begin maintenance
 		} else if (menuInput == 4) {
 			try {
 				this.callPerformMaintenance();
@@ -79,7 +80,7 @@ public class Controller {
 			} catch (MaintenanceException e) {
 				e.getError();
 			}
-			// End maintenance
+		// End maintenance
 		} else if (menuInput == 5) {
 			try {
 				this.callCompleteMaintenance();
@@ -88,14 +89,7 @@ public class Controller {
 			} catch (MaintenanceException e) {
 				e.getError();
 			}
-			// Export data TODO
-		} else if (menuInput == 6) {
-			this.citylodge.displayRooms();
-
-			// Import data TODO
-		} else if (menuInput == 7) {
-			this.citylodge.displayRooms();
-
+		// Quit
 		} else if (menuInput == 8) {
 			try {
 				this.database.saveData();
@@ -104,17 +98,18 @@ public class Controller {
 			} catch (SQLException e) {
 				System.out.println("SQL exception");
 			}
+		//Display for testing ****************************DELETE LATER
 		} else if (menuInput == 9) {
 			citylodge.displayRooms();
 		}
 	}
 
-	// UPDATED - Searches for Room by ID, calls performMaintenance() on Room
+	// Searches for Room by ID, calls performMaintenance() on Room
 	public void callPerformMaintenance() throws InvalidInputException, MaintenanceException {
 
 		// Taking room ID
 		String roomID = this.takeID();
-		
+
 		// Throws InvalidInputException
 		Room thisRoom = citylodge.searchRoomByID(roomID);
 
@@ -127,7 +122,7 @@ public class Controller {
 		success.showAndWait();
 	}
 
-	// UPDATED - Searches for Room by ID, takes completion date and calls
+	// Searches for Room by ID, takes completion date and calls
 	// completeMaintenance() on Room
 	public void callCompleteMaintenance() throws InvalidInputException, MaintenanceException {
 
@@ -150,7 +145,7 @@ public class Controller {
 		success.showAndWait();
 	}
 
-	// UPDATED - calls return room on room or suite object
+	// Calls return room on room or suite object
 	public void callReturnRoom() throws InvalidInputException, ReturnException {
 
 		// Taking roomID
@@ -176,7 +171,7 @@ public class Controller {
 		success.showAndWait();
 	}
 
-	// UPDATED - Takes and validates input to create Suite, adds to roomArray
+	// Takes and validates input to create Suite, adds to roomArray
 	public void addSuite() throws InvalidInputException {
 
 		// Taking suiteID
@@ -201,7 +196,7 @@ public class Controller {
 		this.citylodge.addToArray(thisRoom);
 	}
 
-	// UPDATED - Verifies and adds room to citylodge room array
+	// Verifies and adds room to citylodge room array
 	public void addRoom() throws InvalidInputException {
 
 		// Taking RoomID - throws InvalidInputException
@@ -244,7 +239,7 @@ public class Controller {
 		}
 	}
 
-	// UPDATED - Takes RoomID as search target, validates and calls rent() on chosen
+	// Takes RoomID as search target, validates and calls rent() on chosen
 	// Room.
 	public void callRentRoom() throws InvalidInputException, RentalException {
 
@@ -316,7 +311,24 @@ public class Controller {
 		success.showAndWait();
 	}
 
-	// UPDATED - Checks String is less than 20 words by counting spaces.
+	public void exportData(File target, Room thisRoom) throws InvalidInputException, FileNotFoundException {
+
+		String path = target.getPath();
+
+		File file1 = new File(path + "\\" + thisRoom.getRoomID() + "-export-data.txt");
+
+		PrintWriter output = new PrintWriter(file1);
+		output.write(thisRoom.toString() + ":" + thisRoom.getImagePath());
+		for (HiringRecord i : thisRoom.getHiringRecords()) {
+			output.write("\n" + i.toString());
+		}
+		output.close();
+		
+		AlertMessage success = new AlertMessage(AlertType.INFORMATION, "Data Exported Successfully.","");
+		success.showAndWait();
+	}
+
+	// Checks String is less than 20 words by counting spaces.
 	public boolean checkFeatureSummary(String featureSummary) {
 
 		int spaceCount = 0;
@@ -333,7 +345,7 @@ public class Controller {
 		}
 	}
 
-	// UPDATED - Takes date as string and converts it to DateTime, returns DateTime.
+	// Takes date as string and converts it to DateTime, returns DateTime.
 	public DateTime stringToDateTime(String dateString) {
 
 		String intValue = dateString.replaceAll("[^0-9]", "");
@@ -346,7 +358,8 @@ public class Controller {
 
 	}
 
-	// Takes a date input from user - reduces code repitition - consider letting datetime exception propogate through****
+	// Takes a date input from user - reduces code repitition - consider letting
+	// datetime exception propogate through****
 	public DateTime takeDate(String context) throws InvalidInputException {
 
 		DateTime date = null;
@@ -405,7 +418,7 @@ public class Controller {
 				typeCode);
 		Optional<String> result = roomIDDialog.showAndWait();
 
-		if (result.isPresent()) {
+		if (result.isPresent() && result.get().trim().length() < 9) {
 			if (type == "Standard Room") {
 				roomID = "R_" + result.get().trim().toUpperCase();
 				if (result.get().trim().isEmpty()) {
@@ -471,11 +484,11 @@ public class Controller {
 
 		return choice;
 	}
-	
+
 	public CityLodge getCityLodge() {
 		return this.citylodge;
 	}
-	
+
 	public CityLodgeDB getDatabase() {
 		return this.database;
 	}
