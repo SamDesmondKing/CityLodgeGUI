@@ -229,6 +229,7 @@ public class Controller {
 		// If we made it to here the room is good to go.
 		try {
 			StandardRoom thisRoom = new StandardRoom(roomID, numBeds, featureSummary);
+			thisRoom.setImagePath("images/default-image.png");
 			citylodge.addToArray(thisRoom);
 			AlertMessage success = new AlertMessage(AlertType.INFORMATION, "Room Added Successfully",
 					"Returning to main menu.");
@@ -236,7 +237,7 @@ public class Controller {
 			return;
 		} catch (Exception e) {
 			throw new InvalidInputException("Error: Adding Room Failed", "Room not created, returning to main menu.");
-		}
+		}		
 	}
 
 	// Takes RoomID as search target, validates and calls rent() on chosen

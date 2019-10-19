@@ -1,35 +1,43 @@
 package view;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+
 import controller.Controller;
 import controller.ExportHandler;
 import controller.ImportHandler;
+import controller.ListController;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
 import model.CityLodge;
+import model.Room;
 import model.database.CityLodgeDB;
 import model.exceptions.InvalidInputException;
 
 public class CityLodgeMain extends Application {
 
 	private Controller controller;
-	
-	//TODO
-	/*	
-	 *  THURSDAY
-	 *  - Add ability to import data
-	 *  SATURDAY
-	 *  - Create final GUI design
-	 *  - Test.
+	private ListController lc;
+	private ListView<String> listView;
+
+	// TODO
+	/*
+	 * SATURDAY - Create final GUI design - Test. (Go over imports again - Suites).
 	 */
 
 	@Override
@@ -43,30 +51,35 @@ public class CityLodgeMain extends Application {
 			this.controller = new Controller(citylodge, database);
 			citylodge.setController(this.controller);
 			database.setController(this.controller);
-			
-			//Load data from database into citylodge array
+
+			// Load data from database into citylodge array
 			database.initialise();
-			
+
 		} catch (InvalidInputException e) {
 			e.getError();
 
 		} catch (Exception e) {
-			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Database Status", "Connection to Database Failed. Program Aborting.");
+			AlertMessage failure = new AlertMessage(AlertType.WARNING, "Database Status",
+					"Connection to Database Failed. Program Aborting.");
 			failure.showAndWait();
 			e.printStackTrace();
 			System.exit(1);
 		}
 
-		// ---- GUI ---- ***MODULARISE LATER?
+		// ---- GUI ----
+
+		primaryStage.setTitle("CityLodge Room Manager");
 		
-        primaryStage.setTitle("CityLodge Room Manager");
-
-        ListView listView = new ListView();
-
-        listView.getItems().add("Item 1");
-        listView.getItems().add("Item 2");
-        listView.getItems().add("Item 3");
-        
+		this.listView = null;
+		this.lc = new ListController(this.controller, primaryStage);
+		
+		try {
+			this.listView = this.lc.createListView();
+		} catch (InvalidInputException e1) {
+			e1.printStackTrace();
+		}
+		
+	
 		MenuBar menuBar = new MenuBar();
 		Menu menuIcon = new Menu("Menu");
 		MenuItem addRoom = new MenuItem("Add Room");
@@ -78,13 +91,14 @@ public class CityLodgeMain extends Application {
 		MenuItem importData = new MenuItem("Import Data");
 		MenuItem display = new MenuItem("Display Room Data");
 		MenuItem quit = new MenuItem("Quit");
-		
-        menuIcon.getItems().addAll(addRoom, rentRoom, returnRoom, beginMaint, endMaint, export, importData, display, quit);
-        menuBar.getMenus().addAll(menuIcon);
 
-        //Using lambda expressions to send button clicks through
-        //to the main Controller class, which calls CityLodge methods.  
-        //Knowledge of custom handler classes also demonstrated below. 
+		menuIcon.getItems().addAll(addRoom, rentRoom, returnRoom, beginMaint, endMaint, export, importData, display,
+				quit);
+		menuBar.getMenus().addAll(menuIcon);
+
+		// Using lambda expressions to send button clicks through
+		// to the main Controller class, which calls CityLodge methods.
+		// Knowledge of custom handler classes also demonstrated below.
 		addRoom.setOnAction((ActionEvent e) -> {
 			this.controller.mainMenu(1);
 		});
@@ -103,51 +117,43 @@ public class CityLodgeMain extends Application {
 		quit.setOnAction((ActionEvent e) -> {
 			this.controller.mainMenu(8);
 		});
-		
+
 		display.setOnAction((ActionEvent e) -> {
 			this.controller.mainMenu(9);
 		});
-		
-        
-		//Export data custom handler
+
+		// Export data custom handler
 		export.setOnAction(new ExportHandler(this.controller, primaryStage));
-		
-		//Import data custom handler
+
+		// Import data custom handler
 		importData.setOnAction(new ImportHandler(this.controller, primaryStage));
 
-		// Rest of the GUI. 
-        BorderPane bpane = new BorderPane(listView);
-        bpane.setTop(menuBar);
-        Scene scene = new Scene(bpane, 800, 400);
-        primaryStage.setScene(scene);
-        primaryStage.initStyle(StageStyle.UTILITY);
-        primaryStage.show();
+		// Rest of the GUI.
 		
-		/*
-		 * Scene switching example Button btOK = new Button("Click me"); Scene scene =
-		 * new Scene(btOK, 200, 250); btOK.setOnAction(new CustomHandler(primaryStage,
-		 * scene)); primaryStage.setTitle("MyJavaFX"); // Set the stage title
-		 * primaryStage.setScene(scene); // Place the scene in the stage
-		 * primaryStage.show(); // Display the stage
-		 */
+		BorderPane bpane = new BorderPane(listView);
+		bpane.setTop(menuBar);
+		Scene scene = new Scene(bpane, 820, 400);
+		lc.setScene(scene);
+		primaryStage.setScene(scene);
+		primaryStage.initStyle(StageStyle.UTILITY);
+		primaryStage.show();
 
 	}
 	
-	//Saves program to database on closing window.
+	// Saves program to database on closing window.
 	@Override
 	public void stop() {
-		
-		System.out.println("Saving");
+
 		try {
 			this.controller.getDatabase().saveData();
-			System.out.println("Saved");
 			this.controller.getDatabase().shutdown();
-			System.out.println("Shutting down");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
+	
+	
 	// Main method
 	public static void main(String[] args) {
 

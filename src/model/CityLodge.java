@@ -31,14 +31,6 @@ public class CityLodge {
 		return true;
 	}
 
-	// Calls Room.getDetails() on each Room in roomArray. TODO - prints to console
-	public void displayRooms() {
-
-		for (Room i : this.roomArray) {
-			System.out.println(i.getDetails());
-		}
-	}
-
 	// Searches roomArray by roomID 
 	public Room searchRoomByID(String searchRequest) throws InvalidInputException {
 

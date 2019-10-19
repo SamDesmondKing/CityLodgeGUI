@@ -15,7 +15,6 @@ public class Suite extends Room {
 	}
 	
 
-	// Done (Version 2 - untested)
 	public void rent(String customerID, DateTime rentDate, int numOfRentDays) throws RentalException {
 
 		// Checks that rental period doesn't clash with maintenance schedule

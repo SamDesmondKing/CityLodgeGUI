@@ -109,7 +109,7 @@ public abstract class Room {
 		}
 	}
 
-	// Gets rental records from the HiringRecord array of this room object. ************************need a way to limit this to 10
+	// Gets rental records from the HiringRecord array of this room object.
 	public String getAllHiringRecords() {
 
 		String rentalRecord = "";
